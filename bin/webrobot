@@ -62,19 +62,22 @@ both are mandatory:
 =item cfg
 
 This is the configuration file,
-see L<pod::Config>.
+see L<WWW::Webrobot::pod::Config>.
 
 =item testplan
 
 This is the testplan to run,
-see L<pod::Testplan>.
+see L<WWW::Webrobot::pod::Testplan>.
 
 =back
 
+B<Change example/testplan.xml to your needs.>
+It is just an example and won't run successfully
+because it is taken from an intranet environment!
 
 =head1 SEE ALSO
 
-L<bin::webrobot-load>
+L<webrobot-load>
 
 
 =cut

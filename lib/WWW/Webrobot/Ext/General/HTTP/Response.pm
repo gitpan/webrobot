@@ -1,4 +1,4 @@
-package WWW::Webrobot::Ext::HTTP::Response;
+package WWW::Webrobot::Ext::General::HTTP::Response;
 use strict;
 use warnings;
 

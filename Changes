@@ -1,4 +1,8 @@
-Revision history for Perl module WWW::Webrobot
+0.11 2004-03-04
+        - Fix for libwww-perl-5.76
+          (interface of LWP::UserAgent::redirect_ok has changed)
+        - Fix docs
+        - Some refactoring
 
-0.60 2004-01-22
+0.10 2004-01-22
         - Initial Revision

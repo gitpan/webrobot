@@ -2,7 +2,7 @@ package WWW::Webrobot::Print::ChildSend;
 use strict;
 use warnings;
 
-use WWW::Webrobot::Ext::HTTP::Response;
+use WWW::Webrobot::Ext::General::HTTP::Response;
 
 
 =head1 NAME

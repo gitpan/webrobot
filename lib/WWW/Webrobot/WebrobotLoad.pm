@@ -12,7 +12,7 @@ use WWW::Webrobot::Print::ChildSend;
 
 =head1 NAME
 
-WWW::WebrobotLoad - Run Testplans
+WWW::Webrobot::WebrobotLoad - Run testplans with multiple clients
 
 =head1 SYNOPSIS
 
@@ -112,9 +112,15 @@ sub parent {
 
 =back
 
-# =head1 SEE ALSO
-#
-# L<WWW::Webrobot::pod::Config>
+=head1 SEE ALSO
+
+L<webrobot-load>
+
+L<webrobot>
+
+L<WWW::Webrobot::pod::Config>
+
+L<WWW::Webrobot::pod::Testplan>
 
 =cut
 

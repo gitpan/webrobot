@@ -1,3 +1,6 @@
+=head1 NAME
+
+WWW::Webrobot::pod::README - B<Start here: Introduction>
 
 =head1 What is WebRobot
 
@@ -34,19 +37,23 @@ for analyzing http communication
 You define your requests in an XML file,
 possibly with additional information like a description or an assertion.
 This is called to be a test plan.
+See L<WWW::Webrobot::pod::Testplan.pod>.
 
 =item *
 
 You configure WebRobot (proxies, authentification, ...)
 with a simple properties file.
+See L<WWW::Webrobot::pod::Config.pod>.
 
 =item *
 
-You run L<webrobot.pl> with your test plan and configuration file.
+You run L<webrobot> with your test plan and configuration file.
 
 =item *
 
 You inspect the output in text or html form depending on the output filters in use.
+See L<WWW::Webrobot::pod::OutputListeners.pod>.
+
 
 =back
 

@@ -118,7 +118,7 @@ Write out all visited urls.
 This is usefull
 if you run WWW::Webrobot::Recur::LinkChecker or  WWW::Webrobot::Recur::Browser
 where additional urls are visited.
-The output format is suitable for L<bin/webrobot-gen-plan>.
+The output format is suitable for L<webrobot-gen-plan>.
 
 =back
 

@@ -7,7 +7,7 @@ use HTTP::Request::Common;
 use Time::HiRes;
 
 use WWW::Webrobot::MyUserAgent;
-use WWW::Webrobot::Ext::HTTP::Response;
+use WWW::Webrobot::Ext::General::HTTP::Response;
 
 
 =head1 NAME

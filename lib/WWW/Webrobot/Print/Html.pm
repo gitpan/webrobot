@@ -5,7 +5,7 @@ use base "WWW::Webrobot::Print::Util::Base";
 
 use File::Path;
 use WWW::Webrobot::Global;
-use WWW::Webrobot::Ext::HTTP::Response;
+use WWW::Webrobot::Ext::General::HTTP::Response;
 use WWW::Webrobot::XHtml;
 use WWW::Webrobot::Print::Util::HttpErrcode;
 

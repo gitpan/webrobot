@@ -1,6 +1,6 @@
 =head1 NAME
 
-WWW::Webrobot::pod::Config - how to configure Webrobot
+WWW::Webrobot::pod::Config - How to configure Webrobot
 
 =head1 SYNOPSIS
 
@@ -61,7 +61,7 @@ WWW::Webrobot::pod::Config - how to configure Webrobot
 
 You must spend Webrobot a config file.
 The config file may define proxies, HTTP header, names for a testplan and much more.
-It's just like configuring your www-browser.
+It's just like configuring your WWW browser.
 
 
 =head1 CONFIGURATION FILE FORMAT
@@ -137,7 +137,7 @@ and C<WWW::Webrobot::Print::Html> for HTML output.
         output=WWW::Webrobot::Print::Test
         output=WWW::Webrobot::Print::Html
 
-See L<WWW::Webrobot::pod::OutputListeners.pod>
+See L<WWW::Webrobot::pod::OutputListeners>
 
 =item timeout (value)
 
@@ -156,7 +156,7 @@ if you set it you are compliant to popular browsers.
 
         client_302_bug=1
 
-see L<WWW::Webrobot::MyUserAgent::client_302_bug>
+see L<WWW::Webrobot::MyUserAgent/client_302_bug>
 
 =item delay (value)
 
@@ -188,7 +188,7 @@ Define servers or domains that mustn't be requested via proxies.
 
 =item load.number (value)
 
-The C<load.*> properties are evaluated in L<bin/webrobot_load.pl> only.
+The C<load.*> properties are evaluated in L<webrobot-load> only.
 C<load.number> is the number of emulated clients.
 Each client is one process and processes the same test plan.
 
@@ -270,9 +270,9 @@ See L</SYNOPSIS> or L<MIME::Lite> if you feel it is not self explanatory.
 
 L<WWW::Webrobot::pod::Testplan>
 
-L<WWW::Webrobot>
-
 L<WWW::Webrobot::pod::OutputListeners>
+
+L<WWW::Webrobot>
 
 =cut
 

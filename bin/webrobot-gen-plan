@@ -156,3 +156,26 @@ sub html_encode {
 }
 
 1;
+
+=head1 NAME
+
+webrobot-gen-plan - Generate an XML testplan from a simple ASCII format
+
+=head1 SYNOPSIS
+
+ webrobot-gen-plan --help
+
+=head1 DESCRIPTION
+
+Given an ASCII file
+This command runs a testplan.
+It takes two parameters,
+both are mandatory:
+
+
+=head1 SEE ALSO
+
+L<webrobot>
+
+
+=cut

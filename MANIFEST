@@ -13,7 +13,8 @@ lib/WWW/Webrobot/Assert.pm
 lib/WWW/Webrobot/AssertDefault.pm
 lib/WWW/Webrobot/Attributes.pm
 lib/WWW/Webrobot/CGIHelper.pm
-lib/WWW/Webrobot/Ext/HTTP/Response.pm
+lib/WWW/Webrobot/Ext/General/HTTP/Response.pm
+lib/WWW/Webrobot/Ext/XHtml/HTTP/Response.pm
 lib/WWW/Webrobot/Forker.pm
 lib/WWW/Webrobot/Global.pm
 lib/WWW/Webrobot/HarnessTester.pm

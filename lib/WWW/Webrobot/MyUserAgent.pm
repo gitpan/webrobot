@@ -53,7 +53,11 @@ sub is_redirect_fail {
 }
 
 sub redirect_ok { # INHERITED
-    my ($self, $r) = @_;
+    my $self = shift;
+    my ($r, $prev_response) = @_;
+    # !!! Note that the interface of this function changed at libwww-perl-5.76!
+    # !!! Call SUPER in a generic way!
+
     # $r is of type HTTP::Request
     if ($self->client_302_bug &&
             $r->method eq 'POST' &&
@@ -63,7 +67,7 @@ sub redirect_ok { # INHERITED
         $r->remove_header('content-length');
         $r->remove_header('content-type');
     }
-    return $self -> SUPER::redirect_ok($r) if !defined $self -> {obj_follow};
+    return $self -> SUPER::redirect_ok(@_) if !defined $self -> {obj_follow};
     $self -> {redirect_fail} = 1 if ! $self -> {obj_follow} -> allowed($r->{_uri});
     return ! $self -> {redirect_fail};
 }

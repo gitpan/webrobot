@@ -2,7 +2,7 @@ package WWW::Webrobot;
 use strict;
 use warnings;
 
-*VERSION = \'0.10';
+*VERSION = \'0.11';
 
 use Carp;
 use WWW::Webrobot::Properties;

@@ -84,19 +84,19 @@ xpath-shell - evaluate XPath expressions according to an XML file
 
 =head1 SYNOPSIS
 
- xpath-shell xml-filename [xpath-expression 
+ xpath-shell xml-filename [xpath-expression]
 
 =head1 DESCRIPTION
 
-This program is used to evaluate XPath expression.
+This program is used to evaluate XPath expressions.
 It can be used in two modes:
 
 =over
 
 =item batch mode
 
-Just give C<xpath-expression> a value,
-possibly in single quotes to prevent shell expansion.
+Just give C<xpath-expression> a value.
+Consider using single quotes to prevent shell expansion.
 
 =item interactive mode
 

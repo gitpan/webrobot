@@ -1,6 +1,6 @@
 =head1 NAME
 
-Testplan - how to write a test plan for WWW::Webrobot
+WWW::Webrobot::pod::Testplan - How to write a test plan for L<webrobot>
 
 =head1 SYNOPSIS
 
@@ -185,7 +185,6 @@ The class gets the tags child element as input.
 This means that the syntax within C<< <WWW.Webrobot.Assert> >> is dependant
 on C<WWW::Webrobot::Assert>.
 Consider this behaviour in case you want to supply your own class.
-For more information see L<WWW::Webrobot::pod::Assert.pod>.
 
 Now look at the syntax within C<< <WWW.Webrobot.Assert> >>:
 It contains an expression which is
@@ -440,7 +439,7 @@ where a request ends up in a HTTP I<3xx> response code.
 =head1 Names (Variables)
 
 If you defined names in a corresponding config file,
-see L<WWW::Webrobot::pod::Config.pod>.
+see L<WWW::Webrobot::pod::Config>.
 You can use a name in your test plan
 by including it in curly braces like C<{myhost}>.
 Example:
@@ -496,7 +495,7 @@ L<WWW::Webrobot::pod::Config>
 
 L<WWW::Webrobot>
 
-L<WWW::Webrobot::Assertion>
+L<WWW::Webrobot::Assert>
 
 =cut
 

@@ -1,6 +1,6 @@
 =head1 NAME
 
-Recur - Interface for traversing a site
+WWW::Webrobot::pod::Recur - Interface for traversing a site / generating multiple urls
 
 =head1 SYNOPSIS
 
@@ -24,7 +24,7 @@ Usage in a test plan:
     </entry>
 
 For writing your own class please study the source of
-L<WWW.Webrobot::Recur::Browser> or L<WWW.Webrobot::Recur::LinkChecker>.
+L<WWW::Webrobot::Recur::Browser> or L<WWW::Webrobot::Recur::LinkChecker>.
 
 
 =head1 DESCRIPTION
@@ -74,15 +74,15 @@ That's where the C<allowed> method is used.
 
 =over
 
-=item L<WWW.Webrobot::Recur::Browser>
+=item L<WWW::Webrobot::Recur::Browser>
 
 Follow all frames and images.
 
-=item L<WWW.Webrobot::Recur::LinkChecker>
+=item L<WWW::Webrobot::Recur::LinkChecker>
 
 Follow all frames, images and links you can get.
 
-=item L<WWW.Webrobot::Recur::RandomBrowser> B<[EXPERIMENTAL]>
+=item L<WWW::Webrobot::Recur::RandomBrowser> B<[EXPERIMENTAL]>
 
 Follow links randomly.
 
@@ -92,7 +92,7 @@ Follow links randomly.
 
 =head1 SEE ALSO
 
-L<WWW::Webrobot::pod::Testplan.pod>
+L<WWW::Webrobot::pod::Testplan>
 
 =cut
 
