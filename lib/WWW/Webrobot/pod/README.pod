@@ -1,6 +1,6 @@
 =head1 NAME
 
-WWW::Webrobot::pod::README - S T A R T  H E R E : INTRODUCTION
+WWW::Webrobot::pod::README - *** START HERE ***: INTRODUCTION
 
 =head1 What is WebRobot
 

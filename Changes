@@ -1,3 +1,7 @@
+0.13 2004-05-24
+        - webrobot-load didn't work, fixed
+        - Minor bug fixes mainly concerning output
+
 0.12 2004-03-18
         - Fix docs
         - annotate copyright / COPYRIGHT

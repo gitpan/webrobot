@@ -110,9 +110,10 @@ MAIN: {
                 $xml .= "</and>\n</WWW.Webrobot.Assert>\n</assert>\n";
             }
             $url = html_encode($url) if $output eq "xml";
+            (my $comment_url = $_) =~ s/-+/-/g;
             print <<EOF;
 <request>
-    <!-- $_ -->
+    <!-- $comment_url -->
     <method value='$method'/>
     <url value='$url'/>
     <description value='$i'/>

@@ -5,7 +5,7 @@ use warnings;
 # Author: Stefan Trcek
 # Copyright(c) 2004 ABAS Software AG
 
-*VERSION = \'0.12';
+*VERSION = \'0.13';
 
 use Carp;
 use WWW::Webrobot::Properties;
@@ -35,18 +35,22 @@ Runs a testplan according to a configuration.
 
 =over
 
-=item $wr = WWW::Webrobot -> new( [$cfg] );
+=item $wr = WWW::Webrobot -> new( $cfg_name, $cmd_param );
 
 Construct an object.
-Calls C<cfg($cfg)> if C<$cfg> is set.
+
+ $cfg_name
+     Name of the config file
+ $cmd_param
+     ??? to be documented
 
 =cut
 
 sub new {
     my $class = shift;
     my $self = bless({}, ref($class) || $class);
-    my ($cfg, $cmd_param) = @_;
-    $self->cfg($cfg, $cmd_param) if defined $cfg;
+    my ($cfg_name, $cmd_param) = @_;
+    $self->cfg($cfg_name, $cmd_param) if defined $cfg_name;
     return $self;
 }
 
@@ -64,11 +68,17 @@ $cmd_properties is a ref to a list of key/value pairs.
 Example:
     $cmd_properties = [[key0, value0], [key1, value1], ...];
 
+Note:
+Currently $cfg_name may also be a (internal) hash.
+It is needed for webrobot-load but is declared deprecated.
+
 =cut
 
 sub cfg {
     my ($self, $cfg, $cmd_param) = @_;
-    die if (ref $cfg eq "HASH"); # formerly allowed, check for unclean updates
+    use Carp;
+    confess("config data: hash no more allowed")
+        if (ref $cfg eq "HASH"); # formerly allowed, check for unclean updates
     $self->{cfg} = __PACKAGE__->read_configuration($cfg, $cmd_param) if defined $cfg;
     return $self->{cfg};
 }
@@ -90,9 +100,10 @@ Read in the testplan from a file $test_plan and run it.
 sub run {
     my $self = shift;
     my ($test_plan_name) = @_;
-    my $cfg = $self -> cfg() or die "Missing config definition";
+    #my $cfg = $self -> cfg() or die "Missing config definition";
 
-    $test_plan_name = $test_plan_name || $cfg -> {testplan} or
+    #$test_plan_name = $test_plan_name || $cfg -> {testplan} or
+    $test_plan_name = $test_plan_name || $self->cfg->{testplan} or
         die "No testplan defined!";
     WWW::Webrobot::Global->plan_name($test_plan_name);
 
@@ -102,7 +113,8 @@ sub run {
     }
     my $test_plan = __PACKAGE__->read_testplan($test_plan_name, $sym_tbl);
 
-    return WWW::Webrobot::TestplanRunner -> new() -> run($test_plan, $cfg, $sym_tbl);
+    #return WWW::Webrobot::TestplanRunner -> new() -> run($test_plan, $cfg, $sym_tbl);
+    return WWW::Webrobot::TestplanRunner -> new() -> run($test_plan, $self->cfg, $sym_tbl);
 }
 
 sub read_testplan {

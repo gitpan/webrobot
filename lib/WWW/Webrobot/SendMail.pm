@@ -8,28 +8,34 @@ use warnings;
 
 sub send_mail {
     my ($mail, $exit) = @_;
-    if (defined $mail and (my $c = $mail -> {condition} || "fail") ne "never") {
-        require MIME::Lite;
-        if ($c eq "ever" || $exit && $c eq "fail" || !$exit && $c eq "success") {
-            my $server = $mail -> {server} or die "No mail server given";
-            my $timeout = $mail -> {timeout} || 60;
-            my %parm = ( %$mail );
-            delete @parm{qw(condition server timeout)};
-            my $msg = MIME::Lite -> new(%parm);
-            my $msg_to = $msg->get("to");
-            my $msg_cc = $msg->get("cc");
-            my $msg_bcc = $msg->get("bcc");
-            print "Sending mail",
-                $msg_to  ? " to: $msg_to" : "",
-                $msg_cc  ? " cc: $msg_cc" : "",
-                $msg_bcc ? " bcc: $msg_bcc" : "", "\n";
-            #print "ELEM: $_=$parm{$_}\n" foreach (keys %parm);
-            MIME::Lite -> send('smtp', $server, Timeout=>$timeout);
-            eval {
-                $msg -> send();
-            };
-            $@ ? return $@ : return 0;
-        }
+
+    $mail = {} if ! $mail;
+    my $mail_cond = $mail -> {condition} || "never";
+    return 0 if $mail_cond eq "never";
+
+    require MIME::Lite;
+    if ($mail_cond eq "ever" || $exit && $mail_cond eq "fail" || !$exit && $mail_cond eq "success") {
+        my $server = $mail -> {server} or die "No mail server given";
+        my $timeout = $mail -> {timeout} || 60;
+        my %parm = ( %$mail );
+        delete @parm{qw(condition server timeout)};
+        my $msg = MIME::Lite -> new(%parm);
+        my $msg_to = $msg->get("to");
+        my $msg_cc = $msg->get("cc");
+        my $msg_bcc = $msg->get("bcc");
+        print "Sending mail",
+            $msg_to  ? " to: $msg_to" : "",
+            $msg_cc  ? " cc: $msg_cc" : "",
+            $msg_bcc ? " bcc: $msg_bcc" : "", "\n";
+        #print "ELEM: $_=$parm{$_}\n" foreach (keys %parm);
+        MIME::Lite -> send('smtp', $server, Timeout=>$timeout);
+        eval {
+            $msg -> send();
+        };
+        $@ ? return $@ : return 0;
+    }
+    else {
+        return 0;
     }
 }
 

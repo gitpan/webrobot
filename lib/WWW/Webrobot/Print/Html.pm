@@ -118,6 +118,7 @@ sub global_start {
 
     $self->{dir} = $self->{_parm_dir} ||
         "output_html/" . WWW::Webrobot::Global->plan_name();
+    print STDERR "# " . __PACKAGE__ . " writing to $self->{dir}\n";
     -d $self->{dir} || mkpath([$self->{dir}], 1, 0777) ||
         die "Can't make dir=$self->{dir} err=$!";
 
@@ -326,13 +327,15 @@ EOF
             "<hr>\n",
             print_http_header(
                 "Request Header",
-                "$req->{_request}->{_method}$SP$req->{_request}->{_uri}",
+                ($req->{_request}->{_method} || "no_method") . $SP . ($req->{_request}->{_uri} || "no_uri"),
 	        $req->{_request}->{_headers}
             ),
             "<hr>\n",
             print_http_header(
                 "Response Header",
-	        "$req->{_protocol}$SP<a href='../../$HTTP_ERRCODE#$req->{_rc}' target='webrobot_source'>$req->{_rc}</a>$SP$req->{_msg}",
+	        ($req->{_protocol} || "(no_protocol)") . $SP .
+                    "<a href='../../$HTTP_ERRCODE#$req->{_rc}' target='webrobot_source'>$req->{_rc}</a>" . $SP .
+                    ($req->{_msg} || "(no_message)"),
 	        $req->{_headers}
             ),
         );

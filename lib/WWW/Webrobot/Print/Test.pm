@@ -34,7 +34,7 @@ sub responses {
     return $str;
 }
 
-sub bool { $_[0] ? "TRUE " : "FALSE" }
+sub bool { $_[0] ? "FALSE" : "TRUE " }
 
 sub item_post {
     my ($self, $r, $arg) = @_;

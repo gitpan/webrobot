@@ -95,7 +95,7 @@ sub ua {
 
 sub norm_response {
     my ($r) = @_;
-    if (defined $r && $r->protocol eq 'HTTP/0.9' && $r->message eq 'EOF') {
+    if (defined $r && ($r->protocol || "") eq 'HTTP/0.9' && ($r->message || "") eq 'EOF') {
         # ??? Dieses Verhalten sollte besser von einer Konfigurationsvariable
         # ??? abhaengig gemacht werden.
         $r->code(500);

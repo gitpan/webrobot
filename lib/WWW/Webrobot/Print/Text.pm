@@ -89,9 +89,9 @@ sub response2string {
     return "" if !defined($r);
     return " " x 8,
         $r -> {_rc}, " ",
-        $r -> {_request} -> {_method}, " ",
+        ($r -> {_request} -> {_method} || "(no_method)"), " ",
         $r -> {_request} -> {_uri}, " (",
-        $r -> {_msg}, ")";
+        ($r -> {_msg} || "(no_message)"), ")";
 }
 
 
