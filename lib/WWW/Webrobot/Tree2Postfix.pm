@@ -2,6 +2,10 @@ package  WWW::Webrobot::Tree2Postfix;
 use strict;
 use warnings;
 
+# Author: Stefan Trcek
+# Copyright(c) 2004 ABAS Software AG
+
+
 use Data::Dumper;
 
 

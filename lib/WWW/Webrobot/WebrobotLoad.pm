@@ -2,6 +2,10 @@ package WWW::Webrobot::WebrobotLoad;
 use strict;
 use warnings;
 
+# Author: Stefan Trcek
+# Copyright(c) 2004 ABAS Software AG
+
+
 use WWW::Webrobot;
 use WWW::Webrobot::Global;
 use WWW::Webrobot::Forker;
@@ -26,7 +30,7 @@ WWW::Webrobot::WebrobotLoad - Run testplans with multiple clients
 Runs multiple clients.
 
 [missing documentation]
-Look into the sources L<bin/webrobot-load>.
+Look into the sources L<webrobot-load>.
 
 =head1 METHODS
 
@@ -48,18 +52,41 @@ sub new {
 
 =item ($statistic, $histogram, $url_statistic, $http_errcode, $assert_ok) = run($cfg, $testplan_name);
 
-Run a test
+Run a test.
 
- INPUT VARIABLES
- $cfg              Config, see L<WWW::Webrobot::pod::Config>
- $testplan_name    Name of the testplan
+B<INPUT VARIABLES:>
 
- OUTPUT VARIABLES
- $statistic        see L<WWW::Webrobot::Statistic>
- $histogram        see L<WWW::Webrobot::Histogram>
- $url_statistic
- $http_errcode
- $assert_ok
+=over
+
+=item $cfg
+
+Config, see L<WWW::Webrobot::pod::Config>
+
+=item $testplan_name
+
+Name of the testplan
+
+=back
+
+B<OUTPUT VARIABLES:>
+
+=over
+
+=item $statistic
+
+see L<WWW::Webrobot::Statistic>
+
+=item $histogram
+
+see L<WWW::Webrobot::Histogram>
+
+=item $url_statistic
+
+=item $http_errcode
+
+=item $assert_ok
+
+=back
 
 =cut
 

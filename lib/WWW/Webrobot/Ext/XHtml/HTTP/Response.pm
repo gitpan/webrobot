@@ -2,6 +2,9 @@ package WWW::Webrobot::Ext::XHtml::HTTP::Response;
 use strict;
 use warnings;
 
+# Author: Stefan Trcek
+# Copyright(c) 2004 ABAS Software AG
+
 
 # extend LWPs HTTP::Response without subclassing
 package HTTP::Response;

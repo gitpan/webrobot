@@ -2,6 +2,9 @@ package WWW::Webrobot::SendMail;
 use strict;
 use warnings;
 
+# Author: Stefan Trcek
+# Copyright(c) 2004 ABAS Software AG
+
 
 sub send_mail {
     my ($mail, $exit) = @_;

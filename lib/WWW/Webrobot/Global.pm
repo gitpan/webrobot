@@ -1,8 +1,12 @@
 package WWW::Webrobot::Global;
 use strict;
 use warnings;
-use Carp;
 
+# Author: Stefan Trcek
+# Copyright(c) 2004 ABAS Software AG
+
+
+use Carp;
 
 {
     my $plan_name = "";
@@ -24,6 +28,5 @@ use Carp;
         return $save_memory;
     }
 }
-
 
 1;

@@ -1,6 +1,9 @@
 package WWW::Webrobot::HtmlAnalyzer;
 use strict;
 
+# Author: Stefan Trcek
+# Copyright(c) 2004 ABAS Software AG
+
 use HTML::TokeParser;
 
 =head1 NAME

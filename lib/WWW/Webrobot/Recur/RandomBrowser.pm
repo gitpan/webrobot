@@ -2,6 +2,10 @@ package WWW::Webrobot::Recur::RandomBrowser;
 use WWW::Webrobot::HtmlAnalyzer;
 use strict;
 
+# Author: Stefan Trcek
+# Copyright(c) 2004 ABAS Software AG
+
+
 =head1 NAME
 
 WWW::Webrobot::Recur::RandomBrowser - act like a user klicking urls.

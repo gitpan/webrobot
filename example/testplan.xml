@@ -19,13 +19,13 @@ application
 <plan>
 
 
-    <entry>
+    <request>
         <method value='GET'/>
         <url value='http://s3www.s3.abas.de/s3extern'/>
         <description value='s3www home, 1 redirect'/>
-    </entry>
+    </request>
 
-    <entry>
+    <request>
         <method value='GET'/>
         <url value='http://s3www.s3.abas.de/s3extern'/>
         <description value='s3www home, 1 redirect, timout=0'/>
@@ -37,21 +37,21 @@ application
                 </and>
             </WWW.Webrobot.Assert>
         </assert>
-    </entry>
+    </request>
 
-    <entry>
+    <request>
         <method value='GET'/>
         <url value='{application}/tree.do?id=3&amp;a=1&amp;treeId=troja.mainmenu.id'/>
         <description value='Aufruf 1'/>
-    </entry>
+    </request>
 
-    <entry>
+    <request>
         <method value='GET'/>
         <url value='{application}/tree.do?id=3&amp;a=1&amp;treeId=troja.mainmenu.id'/>
         <description value='Aufruf 2'/>
-    </entry>
+    </request>
 
-    <entry>
+    <request>
         <method value='GET'/>
         <url value='{application}/login.do'/>
         <assert>
@@ -66,9 +66,9 @@ application
             </WWW.Webrobot.Assert>
         </assert>
         <useragent value='koester'/>
-    </entry>
+    </request>
 
-    <entry>
+    <request>
         <method value='POST'/>
         <url value='{application}/authentification/login/j_security_check'/>
         <data>
@@ -87,9 +87,9 @@ application
         </assert>
         <description value='Anmelden: Benutzername=koester, Passwort=xxx. Rolle=Customer'/>
         <useragent value='koester'/>
-    </entry>
+    </request>
 
-    <entry>
+    <request>
         <method value='GET'/>
         <url value='{application}/order/management/secure/showOrderList.do'/>
         <assert>
@@ -105,9 +105,9 @@ application
         </assert>
         <description value='Auf korrekte Bestellliste testen.'/>
         <useragent value='koester'/>
-    </entry>
+    </request>
 
-    <entry>
+    <request>
         <method value='GET'/>
         <url value='{application}/login.do'/>
         <assert>
@@ -122,9 +122,9 @@ application
         </assert>
         <description value=' '/>
         <useragent value='orderrequest'/>
-    </entry>
+    </request>
 
-    <entry>
+    <request>
         <method value='POST'/>
         <url value='{application}/authentification/login/j_security_check'/>
         <data>
@@ -142,15 +142,15 @@ application
         </assert>
         <description value='Anmelden: Benutzername=orderrequest, Passwort=xxx. Rolle=OrderManagementService'/>
         <useragent value='orderrequest'/>
-    </entry>
+    </request>
 
-    <entry>
+    <request>
         <method value='GET'/>
         <url value='{application}/getOrderRequest'/>
         <useragent value='orderrequest'/>
-    </entry>
+    </request>
 
-    <entry>
+    <request>
         <method value='GET'/>
         <url value='{application}/order/management/secure/showOrderList.do'/>
         <useragent value='koester'/>
@@ -167,5 +167,5 @@ application
             </WWW.Webrobot.Assert>
         </assert>
         <description value='Bestellliste anzeigen!'/>
-    </entry>
+    </request>
 </plan>

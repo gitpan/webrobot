@@ -1,7 +1,10 @@
 package WWW::Webrobot::Print::Null;
-use base "WWW::Webrobot::Print::Util::Base";
 use strict;
 use warnings;
+
+# Author: Stefan Trcek
+# Copyright(c) 2004 ABAS Software AG
+
 
 =head1 NAME
 
@@ -19,10 +22,8 @@ See L<WWW::Webrobot::pod::OutputListeners>.
 =cut
 
 sub new {
-    my $proto = shift;
-    my $class = ref($proto) || $proto;
-    my $self  = $class -> SUPER::new();
-    bless ($self, $class);
+    my $class = shift;
+    my $self = bless({}, ref($class) || $class);
     return $self;
 }
 

@@ -11,64 +11,64 @@ application
 <plan>
 
 
-    <entry>
+    <request>
         <method value='GET'/>
         <url value='{application}/tree.do?id=3&amp;a=1&amp;treeId=troja.mainmenu.id'/>
-        <description value='Aufruf 1'/>
-    </entry>
+        <description value='Request 1'/>
+    </request>
 
-    <entry>
+    <request>
         <method value='GET'/>
         <url value='{application}/tree.do?id=3&amp;a=1&amp;treeId=troja.mainmenu.id'/>
-        <description value='Aufruf 2'/>
-    </entry>
+        <description value='Request 2'/>
+    </request>
 
-    <entry>
+    <request>
         <method value='GET'/>
         <url value='{application}/tree.do?id=3&amp;a=1&amp;treeId=troja.mainmenu.id'/>
-        <description value='Aufruf 3'/>
-    </entry>
+        <description value='Request 3'/>
+    </request>
     
     <cookies value='off'/>
 
-    <entry>
+    <request>
         <method value='GET'/>
         <url value='{application}/tree.do?id=3&amp;a=1&amp;treeId=troja.mainmenu.id'/>
-        <description value='Aufruf 4'/>
-    </entry>
+        <description value='Request 4'/>
+    </request>
 
-    <entry>
+    <request>
         <method value='GET'/>
         <url value='{application}/tree.do?id=3&amp;a=1&amp;treeId=troja.mainmenu.id'/>
-        <description value='Aufruf 5'/>
-    </entry>
+        <description value='Request 5'/>
+    </request>
 
     <cookies value='ON'/>
 
-    <entry>
+    <request>
         <method value='GET'/>
         <url value='{application}/tree.do?id=3&amp;a=1&amp;treeId=troja.mainmenu.id'/>
-        <description value='Aufruf 6'/>
-    </entry>
+        <description value='Request 6'/>
+    </request>
 
-    <entry>
+    <request>
         <method value='GET'/>
         <url value='{application}/tree.do?id=3&amp;a=1&amp;treeId=troja.mainmenu.id'/>
-        <description value='Aufruf 7'/>
-    </entry>
+        <description value='Request 7'/>
+    </request>
 
     <cookies value='clear'/>
 
-    <entry>
+    <request>
         <method value='GET'/>
         <url value='{application}/tree.do?id=3&amp;a=1&amp;treeId=troja.mainmenu.id'/>
-        <description value='Aufruf 8'/>
-    </entry>
+        <description value='Request 8'/>
+    </request>
 
-    <entry>
+    <request>
         <method value='GET'/>
         <url value='{application}/tree.do?id=3&amp;a=1&amp;treeId=troja.mainmenu.id'/>
-        <description value='Aufruf 9'/>
-    </entry>
+        <description value='Request 9'/>
+    </request>
 
 </plan>

@@ -2,6 +2,9 @@ package WWW::Webrobot::Print::File;
 use strict;
 use warnings;
 
+# Author: Stefan Trcek
+# Copyright(c) 2004 ABAS Software AG
+
 use WWW::Webrobot::Attributes qw(dir diff_mode idx url orig_url error);
 
 my $name_index = "index";
@@ -25,6 +28,32 @@ This module stores received content on a file.
 The filenames are integers.
 There is an additional file C<index> that stores the mapping
 from filenames to url.
+
+It may be used to refactor an application.
+
+
+=head1 USAGE
+
+You may use this mode for refactoring an application.
+
+=over
+
+=item
+
+For the first run use C<dir => "mylocaldir">.
+This run stores all results in C<mylocaldir>.
+
+=item
+
+Now you may refactor your application.
+
+=item
+
+Then run with  C<dir => "mynewdir", diff_mode => "mylocaldir">.
+It stores the result in C<mynewdir> and checks all differences to C<mylocaldir>.
+
+=back
+
 
 =head1 METHODS
 
@@ -170,10 +199,10 @@ sub item_post {
 
 =head1 BUGS
 
-You can't run it twice and compare the two resulting directories directly.
+You can't run it twice using C<dir => "...">
+and compare the two resulting directories afterwards.
 You must run in I<diff_mode> in your second (third ...) run.
 
 =cut
 
 1;
-

@@ -2,6 +2,9 @@ package WWW::Webrobot::Attributes;
 use strict;
 use warnings;
 
+# Author: Stefan Trcek
+# Copyright(c) 2004 ABAS Software AG
+
 sub import {
     my $self = shift;
     my $package = caller(0);

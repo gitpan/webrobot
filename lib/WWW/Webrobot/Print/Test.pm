@@ -1,7 +1,10 @@
 package WWW::Webrobot::Print::Test;
-use base "WWW::Webrobot::Print::Util::Base";
 use strict;
 use warnings;
+
+# Author: Stefan Trcek
+# Copyright(c) 2004 ABAS Software AG
+
 
 use Test::More qw(no_plan);
 
@@ -37,7 +40,6 @@ sub item_post {
     my ($self, $r, $arg) = @_;
     use Data::Dumper;
     $arg->{fail_str} ||= ''; # ??? should not need this statement!
-#    $arg_all = bool($arg->{fail});
     if (! ok(! $arg->{fail}, "$arg->{url}")) {
         my $str = <<EOF;
     Request:     $arg->{method} $arg->{url}
@@ -61,11 +63,11 @@ sub global_end {
 
 =head1 NAME
 
-WWW::Webrobot::Print::Test - write response content according to Test::More
+WWW::Webrobot::Print::Test - write response content according to L<Test::More>
 
 =head1 DESCRIPTION
 
-This module adapts to Test::Harness.
+This module adapts to L<Test::Harness>.
 
 =head1 METHODS
 

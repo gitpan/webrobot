@@ -6,7 +6,7 @@ WWW::Webrobot::pod::Recur - Interface for traversing a site / generating multipl
 
 Usage in a test plan:
 
-    <entry>
+    <request>
         <method value='GET'/>
         <url value='http://server.org/start.html'/>
         <recurse>
@@ -21,7 +21,7 @@ Usage in a test plan:
             </WWW.Webrobot.Recur.LinkChecker>
         </recurse>
         <description value='Check site'/>
-    </entry>
+    </request>
 
 For writing your own class please study the source of
 L<WWW::Webrobot::Recur::Browser> or L<WWW::Webrobot::Recur::LinkChecker>.
@@ -93,6 +93,17 @@ Follow links randomly.
 =head1 SEE ALSO
 
 L<WWW::Webrobot::pod::Testplan>
+
+
+=head1 AUTHOR
+
+Stefan Trcek
+
+=head1 COPYRIGHT
+
+Copyright(c) 2004 ABAS Software AG
+
+This software is licensed under the perl license, see LICENSE file.
 
 =cut
 

@@ -2,6 +2,9 @@ package WWW::Webrobot::Print::ChildSend;
 use strict;
 use warnings;
 
+# Author: Stefan Trcek
+# Copyright(c) 2004 ABAS Software AG
+
 use WWW::Webrobot::Ext::General::HTTP::Response;
 
 

@@ -2,6 +2,10 @@ package WWW::Webrobot::XML2Tree;
 use strict;
 use warnings;
 
+# Author: Stefan Trcek
+# Copyright(c) 2004 ABAS Software AG
+
+
 use XML::Parser;
 #use Unicode::Lite;
 

@@ -2,6 +2,10 @@ package WWW::Webrobot::Recur::LinkChecker;
 use strict;
 use warnings;
 
+# Author: Stefan Trcek
+# Copyright(c) 2004 ABAS Software AG
+
+
 use WWW::Webrobot::HtmlAnalyzer;
 use WWW::Webrobot::Tree2Postfix;
 
@@ -11,7 +15,7 @@ WWW::Webrobot::Recur::LinkChecker - check all links you can get.
 
 =head1 SYNOPSIS
 
- see L<WWW::Webrobot::pod::Testplan>
+see L<WWW::Webrobot::pod::Testplan>
 
 =head1 DESCRIPTION
 
@@ -73,39 +77,9 @@ my $predicate = {
 };
 
 
-=item new (%parms)
+=item new ()
 
-Constructor -
-Parameters:
-
-=over
-
-=item ignore_image
-
-Ignore images in HTML pages.
-
-=item follow_link
-
-A function that returns 0 if the url mustn't be followed
-and 1 if the url should be followed.
-This function prohibits linkchecking the internet,
-so handle with care!
-
-=item url_rejected
-
-A function to show rejected urls.,
-mainly for debugging purpose.
-
-        Input: $url [string]
-
-=item url_accepted
-
-A function to show accepted urls,
-mainly for debugging purpose.
-
-        Input: $url [string]
-
-=back
+Constructor
 
 =cut
 
@@ -131,7 +105,7 @@ sub new {
 
 =item $obj -> next ($r)
 
-See L<WWW::Webrobot::pod::Recur/item_next>
+See L<WWW::Webrobot::pod::Recur/next>
 
 =cut
 
@@ -176,7 +150,7 @@ sub is_type {
 
 =item $obj -> allowed ($url)
 
-See L<WWW::Webrobot::pod::Recur/item_allowed>
+See L<WWW::Webrobot::pod::Recur/allowed>
 
 =cut
 
@@ -190,10 +164,10 @@ sub only_allowed {
     my $self = shift;
     my @ret = ();
     foreach my $array (@_) {
-	# hier in $array die unerlaubten Verweise löschen
+	# delete all links that are not allowed
 	my @new = ();
 	foreach (@$array) {
-	    if (!defined($self -> {seen} -> {$_})) { # Link noch nicht gesehen
+	    if (!defined($self -> {seen} -> {$_})) { # link unseen yet
 		$self -> {seen} -> {$_} = [] if !defined $self -> {seen} -> {$_};
 		push @{$self -> {seen} -> {$_}}, $self->{current_uri};
 		if ($self -> allowed($_)) {

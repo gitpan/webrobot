@@ -2,7 +2,10 @@ package WWW::Webrobot;
 use strict;
 use warnings;
 
-*VERSION = \'0.11';
+# Author: Stefan Trcek
+# Copyright(c) 2004 ABAS Software AG
+
+*VERSION = \'0.12';
 
 use Carp;
 use WWW::Webrobot::Properties;
@@ -50,59 +53,23 @@ sub new {
 
 =item $wr -> cfg();
 
-returns the config variable C<$cfg>
+Get the config data.
 
 =item $wr -> cfg($cfg_name, $cmd_properties);
 
-=over
+Read in the config data from a file named $cfg.
+Add all properties in $cmd_properties.
+$cmd_properties is a ref to a list of key/value pairs.
 
-=item $cfg
-
-Read in the config data in one of three ways:
-
- scalar		read from file named $cfg
- ref to scalar	eval scalar as a string
- ref to hash	simple perl expression
-
-=back
-
-B<Example:>
-
-        my $cfg = {
-            proxy => {http => "your http proxy", ftp => "your ftp proxy"},
-            names => {altavista => "altavista.com"},
-        };
-        my $wr -> cfg($cfg);
-
-runs C<$cfg> as perl data structure.
-Now write $cfg to a file named C<cfg.pl>
-
-        #=== cfg.pl ===
-        return {
-            proxy => {http => "your http proxy", ftp => "your ftp proxy"},
-            names => {altavista => "altavista.com"},
-        };
-
-and call
-
-        $wr -> cfg("cfg.pl");
-
-=item $wr -> cfg($cfg);
-
-Set config properties in internal format.
-$cfg B<must> be obtained by (some other) $wr->cfg().
+Example:
+    $cmd_properties = [[key0, value0], [key1, value1], ...];
 
 =cut
 
 sub cfg {
     my ($self, $cfg, $cmd_param) = @_;
-    if (ref $cfg eq "HASH") {
-        die if defined $cmd_param;
-        $self->{cfg} = $cfg;
-    }
-    else {
-        $self->{cfg} = __PACKAGE__->read_configuration($cfg, $cmd_param) if defined $cfg;
-    }
+    die if (ref $cfg eq "HASH"); # formerly allowed, check for unclean updates
+    $self->{cfg} = __PACKAGE__->read_configuration($cfg, $cmd_param) if defined $cfg;
     return $self->{cfg};
 }
 
@@ -113,11 +80,7 @@ sub cfg {
 
 =item $test_plan
 
-Run a testplan.
-Read in the testplan in one of two ways:
-
- scalar		read from file named $cfg
- ref to scalar	eval scalar as a string
+Read in the testplan from a file $test_plan and run it.
 
 =back
 
@@ -202,7 +165,7 @@ sub xml2planlist {
                 push @$plan, @$sub_plan;
                 last;
             };
-            /^request$/ || /^entry$/ and do {
+            /^request$/ and do {
                 assert(ref $content eq 'ARRAY', "Test plan request expected");
                 push @$plan, xml2entry($content);
                 last;
@@ -228,7 +191,7 @@ sub xml2planlist {
                 }
                 last;
             };
-            assert(0, "found <$tag>, expected <plan>, <entry>, <include>, <cookies>");
+            assert(0, "found <$tag>, expected <plan>, <request>, <include>, <cookies>");
         }
     }
     return $plan;

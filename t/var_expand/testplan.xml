@@ -6,30 +6,30 @@ application
 
 <plan>
 
-    <entry>
+    <request>
         <method value='NOP'/>
         <description value='some text'/>
-    </entry>
+    </request>
 
-    <entry>
+    <request>
         <method value='NOP'/>
         <description value='{Fred} and {Barney}'/>
-    </entry>
+    </request>
 
-    <entry>
+    <request>
         <method value='NOP'/>
         <description value='{fred} and {barney}'/>
-    </entry>
+    </request>
 
     <include file='t/var_expand/testplan0.xml'>
         <parm name='barneys_firstname' value='Barney'/>
         <parm name='barneys_surname' value='{Barney}'/>
     </include>
 
-    <entry>
+    <request>
         <method value='NOP'/>
         <description value='{barneys_firstname} and {barneys_surname} must not be expanded'/>
-    </entry>
+    </request>
 
     <include file='t/var_expand/testplan0.xml'>
         <parm name='barneys_firstname' value='little-Barney'/>

@@ -2,6 +2,9 @@
 use strict;
 use warnings;
 
+# Author: Stefan Trcek
+# Copyright(c) 2004 ABAS Software AG
+
 use CGI qw(:standard -no_xhtml);
 use Time::HiRes;
 use WWW::Webrobot::WebrobotLoad;
@@ -99,14 +102,14 @@ both are mandatory:
 =item cfg
 
 This is the configuration file,
-see L<pod::Config>.
+see L<WWW::Webrobot::pod::Config>.
 Note that there are some special parameter
 for C<webrobot-load> only.
 
 =item testplan
 
 This is the testplan to run,
-see L<pod::Testplan>.
+see L<WWW::Webrobot::pod::Testplan>.
 
 =back
 
@@ -122,6 +125,6 @@ It uses the magic C<open($HANDLE, "-|")> in L<WWW::Webrobot/Forker> which uses f
 
 =head1 SEE ALSO
 
-L<bin/webrobot>
+L<webrobot>
 
 =cut

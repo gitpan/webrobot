@@ -1,7 +1,10 @@
 package WWW::Webrobot::Print::Text;
-use base "WWW::Webrobot::Print::Util::Base";
 use strict;
 use warnings;
+
+# Author: Stefan Trcek
+# Copyright(c) 2004 ABAS Software AG
+
 
 use Data::Dumper;
 
@@ -9,8 +12,9 @@ use Data::Dumper;
 sub new {
     my $proto = shift;
     my $class = ref($proto) || $proto;
+    my $self = bless({}, ref($class) || $class);
     my %parm = (@_);
-    my $self  = $class -> SUPER::new();
+
     $self -> {summary} = defined $parm{summary} ? $parm{summary} : 0;
     $self -> {format} = defined $parm{format} ? $parm{format} : 1;
     $self -> {failed} = [];
@@ -67,6 +71,30 @@ sub global_end {
     }
 }
 
+
+# private
+sub stack_responses {
+    my ($self, $r) = @_;
+    my @seq = ();
+    while (defined($r)) {
+        unshift(@seq, $r);
+        $r = $r -> {'_previous'};
+    }
+    return @seq;
+}
+
+# private
+sub response2string {
+    my ($self, $r) = @_;
+    return "" if !defined($r);
+    return " " x 8,
+        $r -> {_rc}, " ",
+        $r -> {_request} -> {_method}, " ",
+        $r -> {_request} -> {_uri}, " (",
+        $r -> {_msg}, ")";
+}
+
+
 1;
 
 =head1 NAME
@@ -77,13 +105,15 @@ WWW::Webrobot::Print::Text - write response content to STDOUT
 
 This module writes requests and part of the response to STDOUT.
 
+You may consider to use L<WWW::Webrobot::Print::Test> instead.
+
 =head1 METHODS
 
 See L<WWW::Webrobot::pod::OutputListeners>.
 
 =over
 
-=item WWW::Webrobot::Print::Util::Base -> new(%parameters)
+=item WWW::Webrobot::Print::Text -> new(%parameters)
 
  Parameters     Description
  ================================================================

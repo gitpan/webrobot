@@ -2,6 +2,10 @@ package WWW::Webrobot::UserAgentConnection;
 use strict;
 use warnings;
 
+# Author: Stefan Trcek
+# Copyright(c) 2004 ABAS Software AG
+
+
 use HTTP::Cookies;
 use HTTP::Request::Common;
 use Time::HiRes;

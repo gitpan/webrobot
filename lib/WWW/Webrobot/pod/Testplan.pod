@@ -12,6 +12,11 @@ WWW::Webrobot::pod::Testplan - How to write a test plan for L<webrobot>
         <url value='http://google.de/'/>
     </request>
 
+    <include file='a-file-name'>
+        <parm name='application' value='{application}'/>
+        <parm name='username' value='koester'/>
+    </include>
+
     <plan action="shuffle">
 
         <request>
@@ -41,6 +46,14 @@ WWW::Webrobot::pod::Testplan - How to write a test plan for L<webrobot>
         </request>
 
     </plan>
+
+    <cookies value='clear'/>
+
+    <request>
+        <method value='GET'/>
+        <url value='http://google.de/'/>
+    </request>
+
 
  </plan>
 
@@ -101,11 +114,11 @@ Example:
 By default cookies are on.
 You can switch cookies off or you can just clear the cookies.
 
-Attributes:
+Example:
 
-        value='on'
-        value='off'
-        value='clear'
+        <cookies value='on'/>
+        <cookies value='off'/>
+        <cookies value='clear'/>
 
 =head1 Tag <request>
 
@@ -178,10 +191,10 @@ The only element within an <assert> tag
 is a tag that denotes a class name.
 This class is dynamically loaded (C<require>).
 
-Currently the only available element is C<< <WWW::Webrobot.Assert> >>
+Currently the only available element is C<< <WWW.Webrobot.Assert> >>
 which denotes the class C<WWW::Webrobot::Assert>.
 
-The class gets the tags child element as input.
+The class will get the child elements as input.
 This means that the syntax within C<< <WWW.Webrobot.Assert> >> is dependant
 on C<WWW::Webrobot::Assert>.
 Consider this behaviour in case you want to supply your own class.
@@ -253,7 +266,7 @@ to enforce the XML conversion (XML conversion is done lazy).
 
 =item *
 
-Figure out your desired xpath expression with L<bin/xpath.pl>
+Figure out your desired xpath expression with L<xpath-shell>
 and add it to your test plan.
 
 =item *
@@ -340,7 +353,6 @@ This class takes no arguments.
         <recurse>
             <WWW.Webrobot.Recur.Browser/>
         </recurse>
-        no arguments
 
 B<WWW.Webrobot.Recur.LinkChecker>:
 
@@ -496,6 +508,87 @@ L<WWW::Webrobot::pod::Config>
 L<WWW::Webrobot>
 
 L<WWW::Webrobot::Assert>
+
+
+=head1 RFCs
+
+=over
+
+=item RFC 2616
+
+L<http://www.faqs.org/rfcs/rfc2616.html>
+HTTP/1.1
+
+=item RFC 1945
+
+L<http://www.faqs.org/rfcs/rfc1945.html>
+HTTP/1.0 
+
+=item RFC 2818
+
+http://www.faqs.org/rfcs/rfc2818.html
+HTTPS
+
+=item RFC 2617
+L<http://www.faqs.org/rfcs/rfc2617.html>:
+HTTP Authentication: Basic and Digest Access Authentication
+
+=item RFC 2109
+L<http://www.faqs.org/rfcs/rfc2109.html>
+Cookies: HTTP State Management Mechanism
+
+=item RFC 1521
+L<http://www.faqs.org/rfcs/rfc1521.html>
+MIME
+
+=back
+
+
+=head1 Tutorials
+
+=over
+
+=item *
+
+L<http://www.research.att.com/~bala/papers/h0vh1.html>:
+Key Differences between HTTP/1.0 and HTTP/1.1
+
+=item *
+
+L<http://www.ibiblio.org/mdma-release/http-prob.html>:
+Analysis of HTTP Performance problems
+
+=item *
+L<http://www.jmarshall.com/easy/http/>:
+HTTP Made Really Easy
+
+=item *
+L<http://www.rad.co.il/networks/1999/http/index.htm>:
+The Hypertext Transfer Protocol (HTTP/1.1)
+
+=item *
+L<http://www.netscape.com/newsref/std/cookie_spec.html>: Netscape Cookies
+
+=item *
+L<http://www.cookiecentral.com/faq/>:
+The Unofficial Cookie FAQ
+
+=item *
+L<http://www.isi.edu/in-notes/iana/assignments/media-types/media-types>:
+Media Types
+
+=back
+
+
+=head1 AUTHOR
+
+Stefan Trcek
+
+=head1 COPYRIGHT
+
+Copyright(c) 2004 ABAS Software AG
+
+This software is licensed under the perl license, see LICENSE file.
 
 =cut
 

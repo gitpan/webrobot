@@ -1,7 +1,10 @@
 package WWW::Webrobot::Print::FilterHTTP;
 use strict;
 use warnings;
-use base "WWW::Webrobot::Print::Util::Base";
+# use base "WWW::Webrobot::Print::Util::Base";
+
+# Author: Stefan Trcek
+# Copyright(c) 2004 ABAS Software AG
 
 use HTTP::Headers;
 use WWW::Webrobot::Print::Html;

@@ -9,9 +9,9 @@ names=application=http://erbse.s3.abas.de:7080/troja
 names=www=www.abas.de
 names=s3www=s3www.abas.de
 
-# auth.basic=,Partner-Website,login=abas,password=po77kal
-# auth.basic=|eBusiness-Troja|kunde|sued,west
-# auth.basic=/JDMK/admin/grizzly/
+# auth.basic=,Website,login-id,secret-password
+# auth.basic=|Website|login-id|secret-password
+# auth.basic=/Website/login-id/secret-password
 
 #output=WWW::Webrobot::Print::MakeTestplan
 #output=WWW::Webrobot::Print::Text

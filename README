@@ -8,11 +8,18 @@ used for
 * for a kind of web based unit tests
 * for stress tests of web servers (limited).
 
-For more information see lib/pod/README.pod and lib/pod/WebRobot.pm.
+For more information see lib/WWW/Webrobot/pod/README.pod in this package.
 You may want to format it before:
 
-    pod2text lib/pod/README.pod        > README.txt
-    pod2text lib/WebRobot/WebRobot.pod > WebRobot.txt
+    pod2text lib/WWW/Webrobot/pod/README.pod >README.txt
+
+or follow this link
+
+    http://search.cpan.org/perldoc?WWW%3A%3AWebrobot%3A%3Apod%3A%3AREADME
+
+or search on CPAN for
+
+    WWW::Webrobot::pod::README
 
 
 Installation
@@ -28,7 +35,6 @@ This software is considered alpha because
 
 * Some interfaces may change.
 * There are not enough tests that assure functionality.
-* It's my first project uploaded on CPAN, so be patient an e-mail me problems.
 
 Though - there seem to be no major stability problems.  I tested it on
 Linux (perl 5.6.1 and 5.8.0) and Windows 2000 (perl 5.8.0 with LWP
@@ -48,4 +54,12 @@ This site is currently without content. I will publish on this site
 If you want to contribute to this project please
     mailto:webrobot@abas.de
 
-========================================================================
+
+LICENSE
+=======
+
+AUTHOR: Stefan Trcek
+
+COPYRIGHT: Copyright(c) 2004 ABAS Software AG
+
+LICENSE: This software is licensed under the perl license, see LICENSE file.

@@ -2,6 +2,10 @@ package WWW::Webrobot::UseXPath;
 use strict;
 use warnings;
 
+# Author: Stefan Trcek
+# Copyright(c) 2004 ABAS Software AG
+
+
 use UNIVERSAL qw(isa);  # *isa = \&UNIVERSAL::isa;
 use XML::XPath;
 use XML::XPath::XMLParser;
@@ -42,7 +46,7 @@ sub new {
 =item $self -> extract ($expr)
 
 Apply an xpath expression $expr for this object.
-Result is of type string.
+The result is of type string.
 
 =cut
 

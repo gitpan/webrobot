@@ -2,6 +2,10 @@ package WWW::Webrobot::XHtml;
 use strict;
 use warnings;
 
+# Author: Stefan Trcek
+# Copyright(c) 2004 ABAS Software AG
+
+
 use WWW::Webrobot::Ext::XHtml::HTTP::Response;
 
 

@@ -2,6 +2,9 @@ package WWW::Webrobot::Histogram;
 use strict;
 use warnings;
 
+# Author: Stefan Trcek
+# Copyright(c) 2004 ABAS Software AG
+
 use WWW::Webrobot::Attributes qw(logarithm base hist_pos hist_neg);
 
 

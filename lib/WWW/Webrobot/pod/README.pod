@@ -1,10 +1,10 @@
 =head1 NAME
 
-WWW::Webrobot::pod::README - B<Start here: Introduction>
+WWW::Webrobot::pod::README - S T A R T  H E R E : INTRODUCTION
 
 =head1 What is WebRobot
 
-WebRobot is a data driven http client heavily based on L<LWP|LWP>.
+WebRobot is a data driven http client heavily based on L<LWP>.
 It can be used
 
 =over
@@ -37,13 +37,13 @@ for analyzing http communication
 You define your requests in an XML file,
 possibly with additional information like a description or an assertion.
 This is called to be a test plan.
-See L<WWW::Webrobot::pod::Testplan.pod>.
+See L<WWW::Webrobot::pod::Testplan>.
 
 =item *
 
 You configure WebRobot (proxies, authentification, ...)
 with a simple properties file.
-See L<WWW::Webrobot::pod::Config.pod>.
+See L<WWW::Webrobot::pod::Config>.
 
 =item *
 
@@ -52,7 +52,7 @@ You run L<webrobot> with your test plan and configuration file.
 =item *
 
 You inspect the output in text or html form depending on the output filters in use.
-See L<WWW::Webrobot::pod::OutputListeners.pod>.
+See L<WWW::Webrobot::pod::OutputListeners>.
 
 
 =back
@@ -83,7 +83,7 @@ eg. additionally request the images and frames (extendable).
 
 =item *
 
-Linkchecker included (a special module for <i>multiple request</i>).
+Linkchecker included (a special module for I<multiple request>).
 Predicates and boolean operators for the links to be followed.
 
 =item *
@@ -131,12 +131,39 @@ However, there should really be more tests.
 
 =head1 SEE ALSO
 
-L<WWW::Webrobot::pod::Config.pod>
+=over
 
-L<WWW::Webrobot::pod::OutputListeners.pod>
+=item L<WWW::Webrobot::pod::Config>
 
-L<WWW::Webrobot::pod::Recur.pod>
+How do you configure Webrobot? It is similar to any web browser.
 
-L<WWW::Webrobot::pod::Testplan.pod>
+=item L<WWW::Webrobot::pod::Testplan>
+
+What is the format of a test plan?
+
+=item L<WWW::Webrobot::pod::OutputListeners>
+
+How do you configure the output of Webrobot?
+You may use one of the delivered packages or write your own (very simple).
+
+=item L<WWW::Webrobot::pod::Recur>
+
+How can you make multiple requests out of one?
+You may use one of the delivered packages or write your own (not that simple).
+
+=back
+
+
+=head1 AUTHOR
+
+Stefan Trcek
+
+=head1 COPYRIGHT
+
+Copyright(c) 2004 ABAS Software AG
+
+This software is licensed under the perl license, see LICENSE file.
 
 =cut
+
+1;

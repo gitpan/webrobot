@@ -10,7 +10,7 @@ application
 
 <plan>
 
-    <entry>
+    <request>
         <method value='GET'/>
         <url value='{application}/welcome.do'/>
         <recurse>
@@ -35,6 +35,6 @@ application
             </WebRobot.Assert>
         </assert>
         <description value='Linkchecking für den Shop mit Anmeldung'/>
-    </entry>
+    </request>
 
 </plan>

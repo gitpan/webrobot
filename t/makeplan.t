@@ -157,7 +157,7 @@ sub test_text {
 sub test_xml {
     my ($title, $in, $expected, $xml_expected) = @_;
     my $got = `echo '$in' | $GEN_PLAN -prefix='$prefix' -output=xml -encode=url -encode=data`;
-    $xml_expected = "<plan>\n<entry>\n<!-- $in -->\n$xml_expected\n</entry>\n</plan>\n";
+    $xml_expected = "<plan>\n<request>\n<!-- $in -->\n$xml_expected\n</request>\n</plan>\n";
     ($got, $xml_expected) = norm($got, $xml_expected);
     is($got, $xml_expected, $title);
 }

@@ -3,6 +3,7 @@ bin/webrobot-gen-plan
 bin/webrobot-load
 bin/xpath-shell
 Changes
+COPYRIGHT
 example/cfg0.prop
 example/cookie.xml
 example/linkchecker.xml
@@ -20,6 +21,7 @@ lib/WWW/Webrobot/Global.pm
 lib/WWW/Webrobot/HarnessTester.pm
 lib/WWW/Webrobot/Histogram.pm
 lib/WWW/Webrobot/HtmlAnalyzer.pm
+lib/WWW/Webrobot/HttpErrcode.pm
 lib/WWW/Webrobot/MyUserAgent.pm
 lib/WWW/Webrobot/pod/Config.pod
 lib/WWW/Webrobot/pod/OutputListeners.pod
@@ -34,8 +36,6 @@ lib/WWW/Webrobot/Print/MakeTestplan.pm
 lib/WWW/Webrobot/Print/Null.pm
 lib/WWW/Webrobot/Print/Test.pm
 lib/WWW/Webrobot/Print/Text.pm
-lib/WWW/Webrobot/Print/Util/Base.pm
-lib/WWW/Webrobot/Print/Util/HttpErrcode.pm
 lib/WWW/Webrobot/Properties.pm
 lib/WWW/Webrobot/Recur/Browser.pm
 lib/WWW/Webrobot/Recur/LinkChecker.pm

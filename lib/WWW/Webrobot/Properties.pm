@@ -2,6 +2,10 @@ package WWW::Webrobot::Properties;
 use strict;
 use warnings;
 
+# Author: Stefan Trcek
+# Copyright(c) 2004 ABAS Software AG
+
+
 use Carp;
 
 
@@ -192,7 +196,7 @@ sub load_file {
 
 =head1 NAME
 
-WWW::Webrobot::Properties - Implements a subset of Java Properties
+WWW::Webrobot::Properties - Implements a config format like java.util.Properties
 
 =head1 SYNOPSIS
 
@@ -207,9 +211,13 @@ WWW::Webrobot::Properties - Implements a subset of Java Properties
 
 =head1 DESCRIPTION
 
-This class implements a subset of Java Properties, see
+This class implements a config format like java.util.Properties,
+see
 L<http:E<sol>E<sol>java.sun.comE<sol>j2seE<sol>1.3E<sol>docsE<sol>apiE<sol>javaE<sol>utilE<sol>Properties.html>
 for more docs.
+
+B<Note:>
+Some features are not implemented but there are some extensions for lists.
 
 =head2 NOT IMPLEMENTED
 
@@ -229,7 +237,7 @@ or
  listprop.1=value1
  listprop.2=value2
 
-
+These properties are made available as perl-arrays.
 
 =head1 METHODS
 
@@ -239,21 +247,56 @@ or
 
 Construct an object.
 Options marked (F) affect the semantics of the properties format.
-All options affect the internal representation.
+All options affect the internal representation in Perl.
+The syntax is
 
- listmode => [...]    F  Multiple definitions enforce an array of options.
-                         Multiple definition options may (but needn't) be
-                         written with additional digits.
-                         'names.1=xxx names.27=yyy ...'
- key_value => [...]   F  Option value as 'key=value' deparsed.
- multi_value => [...] F  Option value as '/v0/v1/v2/v3...' deparsed as array
+    option => [...]
+
+=over
+
+=item listmode (F)
+
+Multiple definitions enforce an array of options.
+Multiple definition options may (but needn't) be
+written with additional digits:
+
+    names.1=xxx
+    names.27=yyy
+
+or
+
+    names=xxx
+    names=yyy
+
+Thats for compatibility to java.util.Properties.
+
+=item key_value (F)
+
+Option value as 'key=value' deparsed.
+
+    names = key=value
+
+=item multi_value (F)
+
+ Option value as '/v0/v1/v2/v3...' deparsed as array
                          / is any literal character
- structurize => [...] -  Common prefix options deparse as array, e.g.
-                         'load.num=xx load.base=yy' yields
-                         'load => {num => "xx", base => "yy"}'
+    names = /v0/v1/v2/v3/
+
+=item structurize (-)
+
+Common prefix options deparse as hash, e.g.
+
+    load.num=xx
+    load.base=yy
+
+yields in the internal config format
+
+    load => {num => "xx", base => "yy"}
+
+=back
 
 For a complete guide of the semantics of the options
-see the test L<t/t.properties.t>.
+see the tests L<t/properties.t>.
 
 =back
 

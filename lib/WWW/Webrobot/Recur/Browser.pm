@@ -2,13 +2,17 @@ package WWW::Webrobot::Recur::Browser;
 use WWW::Webrobot::HtmlAnalyzer;
 use strict;
 
+# Author: Stefan Trcek
+# Copyright(c) 2004 ABAS Software AG
+
+
 =head1 NAME
 
 WWW::Webrobot::Recur::Browser - act like a browser when selecting a url
 
 =head1 SYNOPSIS
 
-see L<WWW::Webrobot::pod::Testplan>
+see L<WWW::Webrobot::pod::Testplan/"Request_<recurse>">
 
 =head1 DESCRIPTION
 
@@ -20,30 +24,9 @@ and all images.
 
 =over
 
-=item Testplan -> new (%parms)
+=item Testplan -> new ()
 
 Constructor.
-The parameters are given as hash.
-
-Parameters:
-
-=over
-
-=item url_rejected
-
-A function to show rejected urls.,
-mainly for debugging purpose.
-        Input: $url [string]
-        Output: 0 | 1
-
-=item url_accepted
-
-A function to show accepted urls,
-mainly for debugging purpose.
-        Input: $url [string]
-        Output: 0 | 1
-
-=back
 
 =cut
 
@@ -56,8 +39,8 @@ sub new {
         img        => [],
 	seen       => {},
 	visited    => {},
-	url_rejected => $parm{url_rejected} || sub {},
-	url_accepted => $parm{url_accepted} || sub {},
+	url_rejected => sub {},
+	url_accepted => sub {},
     };
     bless ($self, $class);
     return $self;
@@ -66,7 +49,7 @@ sub new {
 
 =item $obj -> next ($r)
 
-See L<WWW::Webrobot::pod::Recur/item_next>
+See L<WWW::Webrobot::pod::Recur/next>
 
 =cut
 
@@ -102,7 +85,7 @@ sub is_type {
 
 =item $obj -> allowed ($url)
 
-See L<WWW::Webrobot::pod::Recur/item_allowed>
+See L<WWW::Webrobot::pod::Recur/allowed>
 
 =cut
 
@@ -116,10 +99,10 @@ sub only_allowed {
     my $self = shift;
     my @ret = ();
     foreach my $array (@_) {
-	# hier in $array die unerlaubten Verweise löschen
+	# delete all links that are not allowed
 	my @new = ();
 	foreach (@$array) {
-	    if (!defined($self -> {seen} -> {$_})) { # Link noch nicht gesehen
+	    if (!defined($self -> {seen} -> {$_})) { # link unseen yet
 		$self -> {seen} -> {$_} = 1;
 		if ($self -> allowed($_)) {
 		    push @new, $_;

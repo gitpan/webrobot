@@ -2,6 +2,10 @@ package WWW::Webrobot::StatisticSummary;
 use strict;
 use warnings;
 
+# Author: Stefan Trcek
+# Copyright(c) 2004 ABAS Software AG
+
+
 sub statistic {
     my ($s, $title) = @_;
     print "$title\n" if $title;

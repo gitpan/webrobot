@@ -68,3 +68,40 @@ sub postfix {
 
 1;
 
+=head1 NAME
+
+WWW::Webrobot::Assert - Assertions for (http) requests
+
+=head1 Predicates
+
+=over
+
+=item status
+
+=item regex
+
+=item xpath
+
+=item timeout
+
+=back
+
+=head1 Binary Operators
+
+=over
+
+=item and
+
+=item or
+
+=back
+
+=head1 Unary Operators
+
+=over
+
+=item not
+
+=back
+
+=cut

@@ -1,13 +1,15 @@
 package WWW::Webrobot::Print::Html;
 use strict;
 use warnings;
-use base "WWW::Webrobot::Print::Util::Base";
+
+# Author: Stefan Trcek
+# Copyright(c) 2004 ABAS Software AG
 
 use File::Path;
 use WWW::Webrobot::Global;
 use WWW::Webrobot::Ext::General::HTTP::Response;
 use WWW::Webrobot::XHtml;
-use WWW::Webrobot::Print::Util::HttpErrcode;
+use WWW::Webrobot::HttpErrcode;
 
 
 
@@ -29,27 +31,18 @@ via the C<file://host/filename> protocol
 
 The output frames are numbered for reference purpose.
 
- +---+----------------------------------------+
- |   |                                        |
- |   |         2                              |
- |   |                                        |
- |   +-----------------------+----------------+
- |   |                       |                |
- |   |                       |                |
- |   |                       |                |
- |   |           4           |                |
- |   |                       |                |
- | 1 |                       |                |
- |   |                       |                |
- |   |                       |        7       |
- |   |                       |                |
- |   |                       |                |
- |   |                       |                |
- |   |                       |                |
- |   |                       |                |
- |   |                       |                |
- |   |                       |                |
- +---+-----------------------+----------------+
+ +---+------------------------------+
+ |   |                              |
+ |   |               2              |
+ |   |                              |
+ |   +-----------------+------------+
+ |   |                 |            |
+ | 1 |                 |            |
+ |   |       3         |    4       |
+ |   |                 |            |
+ |   |                 |            |
+ |   |                 |            |
+ +---+-----------------+------------+
 
  Frame  Description
  ======================================================================
@@ -60,9 +53,9 @@ The output frames are numbered for reference purpose.
  2      * Testplan data along with result
         * Redirections and authentification
           * HTTP return code for every single request
-          * click selects frames 4-7
- 4      Request Header, Response Header, return code and code description
- 7      Response content for
+          * click selects frames 3-4
+ 3      Request Header, Response Header, return code and code description
+ 4      Response content for
             source
                 the source of the content
             display
@@ -98,11 +91,9 @@ my $SP = '&nbsp;';
 =cut
 
 sub new {
-    my $proto = shift;
-    my $class = ref($proto) || $proto;
-    my $self  = $class -> SUPER::new();
+    my $class = shift;
+    my $self = bless({}, ref($class) || $class);
     init($self, @_);
-    bless ($self, $class);
     return $self;
 }
 
@@ -135,13 +126,13 @@ sub global_start {
         # create http error codes file
         open ERRCODE, ">$self->{dir}/$HTTP_ERRCODE" ||
             warn "Can't write HTTP errcodes";
-        print ERRCODE WWW::Webrobot::Print::Util::HttpErrcode::as_html();
+        print ERRCODE WWW::Webrobot::HttpErrcode::as_html();
         close ERRCODE;
     }
 
     foreach (@{$self->{list_modes}}) {
 	my ($dummy_handle, $index, $filename) = @$_;
-	# toplevel frameset containing (1), (2 4 7)
+	# toplevel frameset containing (1), (2 3 4)
 	my $INDEX = open_die(">$self->{dir}/$index");
 	print {$INDEX} make_html("WebRobot", <<EOF);
 <frameset cols='90,1*'>
@@ -227,7 +218,7 @@ sub item_write {
     my $dir = $self->{dir} . "/" . $index;
     -d $dir || mkdir $dir || die "Can't make dir=$dir err=$!";
 
-    # Frameset containing (2), (4 7)
+    # Frameset containing (2), (3 4)
     my $INDEX = open_die(">$dir/index.html");
     my $request_body_frame = ($arg->{fail} == 2) ? "" : "<frame name='requestbody' src='0/index.html'>";
     print {$INDEX} make_html("Single Request", <<EOF);
@@ -320,7 +311,7 @@ EOF
 	my $dir = "$self->{dir}/$index/$subrequest_count";
 	-d $dir || mkdir $dir || die "Can't make dir=$dir err=$!";
 
-	# write data for frame 4, request header
+	# write data for frame 3, request header
         my $HEADER = open_die(">$dir/req_head.html");
         my $xhtml_text0 = ($req->content_xhtml(1)) ?
             "<a href='source_xhtml.txt' target='webrobot_source'>source-xhtml</a>" : "";
@@ -425,7 +416,7 @@ EOF
         }
         close $DISPLAY;
 
-	# write frameset ((4), (7)) [resquest/response]
+	# write frameset ((3), (4)) [resquest/response]
 	my $INDEX = open_die(">$dir/index.html");
 	print {$INDEX} make_html("Request and Response, Header and Data", <<EOF);
 <frameset cols='60%, 40%'>

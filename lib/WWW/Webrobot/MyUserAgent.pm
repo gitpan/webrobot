@@ -3,6 +3,9 @@ use strict;
 use warnings;
 use base "LWP::UserAgent";
 
+# Author: Stefan Trcek
+# Copyright(c) 2004 ABAS Software AG
+
 
 sub new {
     my $proto = shift;
@@ -140,10 +143,10 @@ This flag indicates that a redirection was aborted.
 
 inherited from L<LWP::UserAgent>
 
-=item $ua -> sub client_302_bug
+=item $ua -> client_302_bug
 
  $ua->client_302_bug(1)
-     Bevave like 302-buggy browser, no method to unset available.
+     Behave like 302-buggy browser, no method to unset available.
  $ua->client_302_bug
      return whether value is set
 

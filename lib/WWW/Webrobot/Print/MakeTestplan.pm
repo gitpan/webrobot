@@ -2,6 +2,9 @@ package WWW::Webrobot::Print::MakeTestplan;
 use strict;
 use warnings;
 
+# Author: Stefan Trcek
+# Copyright(c) 2004 ABAS Software AG
+
 
 sub new {
     my $class = shift;
@@ -45,24 +48,39 @@ WWW::Webrobot::Print::MakeTestplan - print a line based testplan
 
 =head1 DESCRIPTION
 
-This module prints all urls in a format compatible to L<bin::makeplan.pl>.
+This module prints all urls in a format compatible to L<webrobot-gen-plan>.
 It is usefull when you use a recursive request such as
 L<WWW::Webrobot::Recur::LinkChecker> or L<WWW::Webrobot::Recur::Browser>
 and want to convert it to a nonrecursive test naming all urls explicitly.
 
 This module can be used to convert an (nonrecursive) XML testplan
-to a line based testplan
+to a line based testplan,
 though some information will usually be lost.
 
 =head1 SYNOPSIS
 
- bin/webrobot.pl cfg=cfg0.prop testplan=testplan0.xml | bin/makeplan.pl
+ # In cfg0.prop set
+ #     output=WWW::Webrobot::Print::MakeTestplan
+ webrobot cfg=cfg0.prop testplan=testplan0.xml | webrobot-gen-plan
 
 =head1 NOTE
 
- - All urls will be requested via HTTP and B<must> succeed!
- - The data part of HTTP POSTs will be encoded according CGI.
- - Assertions won't be printed, they are lost (as most other parameters)
+=over
+
+=item *
+
+All urls will be requested via HTTP and B<must> succeed!
+
+=item *
+
+The data part of HTTP POSTs will be encoded according CGI.
+
+=item *
+
+Assertions won't be printed, they are lost (as most other parameters)
+
+=back
+
 
 =head1 METHODS
 
@@ -71,5 +89,7 @@ See L<WWW::Webrobot::pod::OutputListeners>.
 =over
 
 =item WWW::Webrobot::Print::MakeTestplan -> new ();
+
+Constructor
 
 =back

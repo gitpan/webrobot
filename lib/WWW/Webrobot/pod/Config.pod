@@ -95,7 +95,7 @@ a list: The first character is the delimiter (see C<auth.basic>).
 
 =back
 
-All C<property_name>s that are marked B<@> accept listmode
+All C<property_name>s that are marked C<@> accept listmode
 (see C<auth.basic>, C<proxy>).
 This means you can define multiple C<property_name>s.
 Non-listmode C<property_name>s should be defined only once.
@@ -108,7 +108,7 @@ Non-listmode C<property_name>s should be defined only once.
 
 =item names (@key-value)
 
-The key defines a name, the value its value.
+The C<key> defines a name, the C<value> its value.
 The key can be used within a testplan as C<{key}>
 and will be substituted as C<value>.
 
@@ -132,7 +132,7 @@ Thats the date to put into the configuration file.
 Define output listeners.
 Each listener will be called for any http request.
 The most popular listeners are L<WWW::Webrobot::Print::Test> for Test::Harness output
-and C<WWW::Webrobot::Print::Html> for HTML output.
+and L<WWW::Webrobot::Print::Html> for HTML output.
 
         output=WWW::Webrobot::Print::Test
         output=WWW::Webrobot::Print::Html
@@ -149,7 +149,7 @@ Default as in LWP::UserAgent.
 
 =item client_302_bug (value)
 
-Emulates a very common bug of popular www browsers concerning http response 302.
+This option emulates a very common bug of popular www browsers concerning http response 302.
 This bug is so common that even many servers rely on it.
 If you do not set this value you are HTTP compliant,
 if you set it you are compliant to popular browsers.
@@ -171,7 +171,7 @@ Set additional HTTP headers.
 You may write '_' instead of '-' as in C<user_agent> instead of C<user-agent>.
 
         http_header=Accept-Language=de
-        user_agent=Webrobot 9.7 Platin limited",
+        user_agent=Webrobot 9.7 Platin limited
 
 =item proxy (@value)
 
@@ -184,7 +184,7 @@ Define your proxy servers.
 Define servers or domains that mustn't be requested via proxies.
 
         no_proxy=localhost
-        no_proxy=subnet.org
+        no_proxy=localnet.com
 
 =item load.number (value)
 
@@ -226,7 +226,7 @@ Values are
  fail (default)
  success
  ever
- never
+ never (default if no mail.* attribute is given)
 
         mail.condition=never
 
@@ -273,6 +273,17 @@ L<WWW::Webrobot::pod::Testplan>
 L<WWW::Webrobot::pod::OutputListeners>
 
 L<WWW::Webrobot>
+
+
+=head1 AUTHOR
+
+Stefan Trcek
+
+=head1 COPYRIGHT
+
+Copyright(c) 2004 ABAS Software AG
+
+This software is licensed under the perl license, see LICENSE file.
 
 =cut
 

@@ -6,10 +6,10 @@ application
 
 <plan>
 
-    <entry>
+    <request>
         <method value='NOP'/>
         <description value='Fred is {freds_firstname} is {freds_surname}'/>
-    </entry>
+    </request>
 
     <include file='t/var_expand/testplan2.xml'>
         <parm name='double_fred_first' value='double-{freds_firstname}'/>

@@ -2,6 +2,9 @@ package WWW::Webrobot::HarnessTester;
 use strict;
 use warnings;
 
+# Author: Stefan Trcek
+# Copyright(c) 2004 ABAS Software AG
+
 use Test::Harness;
 use File::Path;
 use File::Basename;

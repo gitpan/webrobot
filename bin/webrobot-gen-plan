@@ -1,6 +1,9 @@
 #!/usr/bin/perl -w
 use strict;
 
+# Author: Stefan Trcek
+# Copyright(c) 2004 ABAS Software AG
+
 use Getopt::Long;
 use CGI;
 
@@ -108,13 +111,13 @@ MAIN: {
             }
             $url = html_encode($url) if $output eq "xml";
             print <<EOF;
-<entry>
+<request>
     <!-- $_ -->
     <method value='$method'/>
     <url value='$url'/>
     <description value='$i'/>
 $xml\
-</entry>
+</request>
 EOF
         }
         $i++;

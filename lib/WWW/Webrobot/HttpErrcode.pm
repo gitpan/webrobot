@@ -1,14 +1,18 @@
-package WWW::Webrobot::Print::Util::HttpErrcode;
+package WWW::Webrobot::HttpErrcode;
 use strict;
 use warnings;
 
+# Author: Stefan Trcek
+# Copyright(c) 2004 ABAS Software AG
+
+
 =head1 NAME
 
-WWW::Webrobot::Print::Util::HttpErrcode - HTTP Error Codes
+WWW::Webrobot::HttpErrcode - HTTP Error Codes
 
 =head1 SYNOPSIS
 
- my $html = WWW::Webrobot::Print::Util::as_html;
+ my $html = WWW::Webrobot::HttpErrcode::as_html;
 
 =head1 DESCRIPTION
 
@@ -739,6 +743,7 @@ This is an extract of <a href='http://www.faqs.org/rfcs/rfc2616.html'>RFC 2616</
    protocols are supported by that server.
 </body></html>
 EOF
+
 }
 
 1;

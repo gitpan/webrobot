@@ -2,6 +2,10 @@ package WWW::Webrobot::TestplanRunner;
 use strict;
 use warnings;
 
+# Author: Stefan Trcek
+# Copyright(c) 2004 ABAS Software AG
+
+
 use WWW::Webrobot::UserAgentConnection;
 use WWW::Webrobot::Print::Null;
 
@@ -24,7 +28,7 @@ reads a testplan and executes this plan.
 
 =over
 
-=item $wr = WWW::Webrobot -> new();
+=item $wr = WWW::Webrobot::TestplanRunner -> new();
 
 Construct an object.
 
@@ -144,7 +148,7 @@ sub get_plugin {
     return $ret;
 }
 
-# get useragent - create if not existent
+# get useragent - create one if nonexistent
 sub _get_ua_connection {
     my ($self, $cfg, $user) = @_;
     if (!exists $self->{_ua_list}->{$user}) {

@@ -2,6 +2,10 @@ package WWW::Webrobot::Statistic;
 use strict;
 use warnings;
 
+# Author: Stefan Trcek
+# Copyright(c) 2004 ABAS Software AG
+
+
 use Carp;
 
 use WWW::Webrobot::Attributes qw(extended elem sum_x sum_x2 n min max);
@@ -96,8 +100,16 @@ This module will store the complete data set on demand only.
 
 Constructor.
 Options:
- extended => 1  store complete data set (only if you want to call L<median>
-             0  needn't store complete data set (L<median> not available)
+
+=over
+
+=item extended
+
+1  store complete data set (only if you want to call L<median>.
+
+0  needn't store complete data set (L<median> not available).
+
+=back
 
 =item $s->n
 
@@ -126,8 +138,8 @@ Standard deviation, base n-1
 =item $s->median
 
 Median.
-Gives the arithmetic mean of the two "middle" elements
-if the number of Elements is even.
+Gives the arithmetic mean of the two "mean" elements
+if the number of elements is even.
 
 =back
 

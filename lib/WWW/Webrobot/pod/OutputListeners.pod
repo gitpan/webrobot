@@ -10,6 +10,8 @@ Usage within a config file:
  output=WWW::Webrobot::Print::Text
  output=WWW::Webrobot::Print::Test
  output=WWW::Webrobot::Print::Html
+ 
+ # Caveat: What follows "File" is really perl syntax (eval'ed)
  output=WWW::Webrobot::Print::File 'dir' => 'diff_new', 'diff_mode' => 'diff_orig'
  output=WWW::Webrobot::Print::File 'dir' => 'diff_orig'
 
@@ -22,6 +24,9 @@ L<WWW::Webrobot::Print::Text> or L<WWW::Webrobot::Print::Test>.
 Output listeners are defined within a config file,
 see L</SYNOPSIS> and L<WWW::Webrobot::pod::Config>.
 They are called in sequence if you instantiate more than one listener.
+
+B<Note:> Output will look funny
+if you define more than one output listener that prints to STDOUT.
 
 
 =head1 METHODS
@@ -45,7 +50,11 @@ You may use it to close files, etc.
 
 This method is called before any request is done.
 The argument is a hash that defines the values for this single request.
-This hash is defined within the testplan, see L<WWW::Webrobot::pod::Testplan>.
+This hash is defined within the testplan,
+see the XML representation of C<< <request> >> in L<WWW::Webrobot::pod::Testplan>
+or dump it.
+
+        use Data::Dumper; print Dumper $arg;
 
 =item $obj -> item_post($r, $arg)
 
@@ -95,11 +104,12 @@ This listener produces output as plain text on STDOUT.
 
 =item L<WWW::Webrobot::Print::Test>
 
-This listener produces output for Test::Harness.
+This listener produces output for L<Test::Harness> on STDOUT.
 
 =item L<WWW::Webrobot::Print::Html>
 
 This listener generates a bunch of HTML files to be viewed with a web browser.
+No output to STDOUT.
 
 =begin comment
 
@@ -110,14 +120,15 @@ This is the only one that supports C<item_post_change>.
 =item L<WWW::Webrobot::Print::File>
 
 Write response content to the file system
-and diff to a previous run
+and diff to a previous run.
+Prints to STDOUT in diff-mode only.
 
 =item L<WWW::Webrobot::Print::MakeTestplan>
 
 Write out all visited urls.
 This is usefull
-if you run WWW::Webrobot::Recur::LinkChecker or  WWW::Webrobot::Recur::Browser
-where additional urls are visited.
+if you run L<WWW::Webrobot::Recur::LinkChecker> or
+L<WWW::Webrobot::Recur::Browser> where additional urls are visited.
 The output format is suitable for L<webrobot-gen-plan>.
 
 =back
@@ -129,6 +140,16 @@ L<WWW::Webrobot::pod::Config>
 
 L<WWW::Webrobot>
 
+
+=head1 AUTHOR
+
+Stefan Trcek
+
+=head1 COPYRIGHT
+
+Copyright(c) 2004 ABAS Software AG
+
+This software is licensed under the perl license, see LICENSE file.
 
 =cut
 
