@@ -8,7 +8,7 @@ application
 
     <request>
         <method value='NOP'/>
-        <description value='Now doubled: Fred is {double_fred_first} is {double_fred_second}'/>
+        <description value='Now doubled: Fred is ${double_fred_first} is ${double_fred_second}'/>
     </request>
 
 </plan>

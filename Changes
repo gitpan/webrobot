@@ -1,3 +1,45 @@
+0.50 2004-09-14   (*) break old test plans or configuration files
+        - Properties and configuration:
+          * Syntax for properties is ${property} "instead" of "{property}"
+          - Reading (dynamic) properties from file and from output of
+            external scripts. There are now static properties (evaluated when
+            test plan is read) from configuration file and dynamic properties
+            (evaluated when test plan is run) read from a file or script.
+          - Defining properties by means of a http response (also dynamic):
+            New properties can be defined when a request was done.
+            This include the returned header fields, regular expression
+            and XPath to the response content.
+          - Dynamic properties are now true variables and can be overwritten
+          - System property "unique id ${_id} in test plans
+            (most usefull for webrobot-load)
+          - Allow use of recently defined names within the configuration:
+                names=server=myhost 
+                names=application=http://${server}/app
+            In the last version these names worked within test plans only.
+
+        - Referrer:
+          - <referrer value='on'/> tag to enable referrers in HTTP requests
+          - In the config file: "referrer_bug=1"
+            to emulate a common browser bug when using referrers
+
+        - Output (WWW::Webrobot::Print::*)
+          - Show name/value pairs when using <config>
+          - Show value of XPath expression in ::Html
+          - ::Html: Better frame handling, some browser had been confused
+          - ::Test: Better output
+
+        - Test plan:
+          - GET request: <data> section as in POST. The url will be rewritten in
+            http://url?parm1=value1&parm2=value2
+          - New assertion predicate: <string value="..."/>
+          * <regex .../> in assertions had double "\" escapes, now normal regex.
+
+        - Others:
+          - httpd for tests during installation
+          - more tests
+          - API: WWW::Webrobot: Reading configuration and test plan from
+            variables, (was file read only)
+
 0.13 2004-05-24
         - webrobot-load didn't work, fixed
         - Minor bug fixes mainly concerning output
@@ -15,4 +57,4 @@
         - Some refactoring
 
 0.10 2004-03-11
-        - Initial Revision
+        - Initially published revision

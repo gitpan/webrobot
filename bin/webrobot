@@ -33,8 +33,8 @@ my $test_plan_name = $cgi->param('testplan');
 
 MAIN: {
     my $cmd_param = WWW::Webrobot::CGIHelper::param2list($cgi, [qw(cfg testplan)]);
-    my $webrobot = WWW::Webrobot -> new($cfg_name, $cmd_param);
-    my $exit = $webrobot -> run($test_plan_name);
+    my $webrobot = WWW::Webrobot -> new(\$cfg_name, $cmd_param);
+    my $exit = $webrobot -> run(\$test_plan_name);
 
     # conditionally send mail
     if (! WWW::Webrobot::SendMail::send_mail($webrobot -> cfg() -> {mail}, $exit)) {

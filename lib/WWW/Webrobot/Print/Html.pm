@@ -118,7 +118,7 @@ sub global_start {
 
     $self->{dir} = $self->{_parm_dir} ||
         "output_html/" . WWW::Webrobot::Global->plan_name();
-    print STDERR "# " . __PACKAGE__ . " writing to $self->{dir}\n";
+    print "# " . __PACKAGE__ . " writing to $self->{dir}\n";
     -d $self->{dir} || mkpath([$self->{dir}], 1, 0777) ||
         die "Can't make dir=$self->{dir} err=$!";
 
@@ -132,10 +132,10 @@ sub global_start {
     }
 
     foreach (@{$self->{list_modes}}) {
-	my ($dummy_handle, $index, $filename) = @$_;
-	# toplevel frameset containing (1), (2 3 4)
-	my $INDEX = open_die(">$self->{dir}/$index");
-	print {$INDEX} make_html("WebRobot", <<EOF);
+        my ($dummy_handle, $index, $filename) = @$_;
+        # toplevel frameset containing (1), (2 3 4)
+        my $INDEX = open_die(">$self->{dir}/$index");
+        print {$INDEX} make_html("WebRobot", <<EOF);
 <frameset cols='90,1*'>
   <frame name='planlist' src='$filename'>
   <frame name='planentry' src='0/index.html'>
@@ -146,14 +146,14 @@ sub global_start {
   </noframes>
 </frameset>
 EOF
-	close $INDEX;
+        close $INDEX;
 
-	# create frame 1
-	my $handle = open_die(">$self->{dir}/$filename");
-	$_ -> [0] = $handle;
-	autoflush($handle);
+        # create frame 1
+        my $handle = open_die(">$self->{dir}/$filename");
+        $_ -> [0] = $handle;
+        autoflush($handle);
         my $navigation = $self->{navigation} || "";
-	print $handle "$DOCTYPE\n<html>\n<body>\n";
+        print $handle "$DOCTYPE\n<html>\n<body>\n";
         print $handle "$navigation" if $navigation;
         print $handle
             "<a href='list_all.html'>all</a><br>",
@@ -170,9 +170,9 @@ EOF
 sub global_end {
     my $self = shift;
     foreach (@{$self->{list_modes}}) {
-	my ($handle, $index, $filename) = @$_;
-	print $handle "</body>\n</html>\n";
-	close $handle;
+        my ($handle, $index, $filename) = @$_;
+        print $handle "</body>\n</html>\n";
+        close $handle;
     }
 }
 
@@ -219,9 +219,10 @@ sub item_write {
     my $dir = $self->{dir} . "/" . $index;
     -d $dir || mkdir $dir || die "Can't make dir=$dir err=$!";
 
-    # Frameset containing (2), (3 4)
+    # FILE: Frameset containing (2), (3 4)
     my $INDEX = open_die(">$dir/index.html");
-    my $request_body_frame = ($arg->{fail} == 2) ? "" : "<frame name='requestbody' src='0/index.html'>";
+    my $request_body_frame = ($r && $arg->{fail} != 2) ?
+        "<frame name='requestbody' src='0/index.html'>" : "";
     print {$INDEX} make_html("Single Request", <<EOF);
 <frameset rows='30%, 70%'>
     <frame src='plan_data.html'>
@@ -229,13 +230,12 @@ sub item_write {
 </frameset>
 <noframes>
     <a href='plan_data.html'>plan_data.html</a><br>
-    <a href='redirections.html'>redirections.html</a><br>
 </noframes>
 </frameset>
 EOF
     close $INDEX;
 
-    # write frame 2
+    # FILE: write frame 2
     my $PLANDATA = open_die(">$dir/plan_data.html");
 
     # print navigation bar
@@ -260,59 +260,83 @@ EOF
     my $subrequest_count = 0;
     my $req = $r;
     while (defined $req) {
-	print $PLANDATA
+        print $PLANDATA
             "<a href='../$HTTP_ERRCODE#$req->{_rc}' target='webrobot_source'>$req->{_rc}</a>",
             "$SP<a href='$subrequest_count/index.html' target='requestbody'>",
-	    "$req->{_request}->{_uri}</a><br>\n";
-	$subrequest_count++;
-	$req = $req -> {_previous};
+            "$req->{_request}->{_uri}</a><br>\n";
+        $subrequest_count++;
+        $req = $req -> {_previous};
     }
     print {$PLANDATA} "<hr>\n";
-
-    # print assertions
-    if (my $fail_out = $arg->{fail_str}) {
-        $fail_out =~ s/</&lt;/g;
-        my @bool = qw(false true);
-        #use Data::Dumper; die Dumper $fail_out;
-        my @failed = map {
-            $_->[0] = $bool[$_->[0]] || $_->[0]; $_
-        } map {
-            [ split(/\s+/, $_, 2) ]
-        } split(/\n/, $fail_out);
-        print {$PLANDATA} pr_table("Predicates", [], \@failed, alter_colors());
-    }
-
 
     # print POST data
     if (defined $arg->{data} && %{$arg->{data}}) {
         my @tbl = map {[$_, $arg->{data}->{$_}]} sort keys %{$arg->{data}};
-	print {$PLANDATA} pr_table("POST: data", ["Attribute", "Value"], \@tbl, alter_colors());
+        print {$PLANDATA} pr_table("Data section of GET or POST", ["Attribute", "Value"], \@tbl, alter_colors());
+        print $PLANDATA "<br>\n";
+    }
+
+    # print assertions
+    if (my $fail_out = $arg->{fail_str}) {
+        $fail_out = [ $fail_out ] if ! ref $fail_out;
+        s/</&lt;/g foreach (@$fail_out);
+        my @bool = qw(false true);
+        my @failed = map {
+            $_->[0] = $bool[$_->[0]] || $_->[0];
+            $_
+        } map {
+            [ split(/\s+/, $_, 2) ]
+        } @$fail_out;
+        print {$PLANDATA} pr_table("Predicates", [], \@failed, alter_colors());
+        print $PLANDATA "<br>\n";
+    }
+
+    # print xpath expressions
+    # ??? this is a hack as it makes use of internal data structures of $arg->{assert}
+    if (my $postfix = ((($arg -> {assert} || {}) -> {evaluator} || {}) -> {postfix} || [])) {
+        my @xpath = ();
+        foreach (@$postfix) {
+            next if ref $_ ne 'ARRAY';
+            my ($predicate, $parm) = @$_;
+            next if $predicate ne 'xpath';
+            my $xpath_expr = $parm->[0]->{xpath};
+            (my $xpath_result = $r->xpath($xpath_expr)) =~ s/\n/<br>/g;
+            push @xpath, [$xpath_expr, $xpath_result];
+        }
+        print {$PLANDATA} pr_table("XPath expressions", ["XPath", "Value"], \@xpath, alter_colors());
+        print $PLANDATA "<br>\n";
+    }
+
+    # print variables that have been defined in this entry
+    if (defined $arg->{new_properties} && scalar @{$arg->{new_properties}}) {
+        print {$PLANDATA} pr_table("Defined variables", ["Name", "Value"], $arg->{new_properties}, alter_colors());
         print $PLANDATA "<br>\n";
     }
 
     # print caller pages
     if (my $cp = $arg->{caller_pages}) {
         print $PLANDATA "<p><b>This page was called by</b><br>\n";
-	foreach (@$cp) {
-	    print $PLANDATA "$_<br>\n";
-	}
+        foreach (@$cp) {
+            print $PLANDATA "$_<br>\n";
+        }
     }
 
     # print elapsed time
     print $PLANDATA "Elapsed time: ", $r->elapsed_time(), " seconds<br>\n" if $r;
 
+    # Finish this frame
     print $PLANDATA "</html>\n";
     close $PLANDATA;
 
-    # print all subrequests
+    # FILE: write frame(3): print all subrequests
     $subrequest_count = 0;
     $req = $r;
     while (defined($req)) { # for all subrequests
-	# define and make directory
-	my $dir = "$self->{dir}/$index/$subrequest_count";
-	-d $dir || mkdir $dir || die "Can't make dir=$dir err=$!";
+        # define and make directory
+        my $dir = "$self->{dir}/$index/$subrequest_count";
+        -d $dir || mkdir $dir || die "Can't make dir=$dir err=$!";
 
-	# write data for frame 3, request header
+        # write data for frame 3, request header
         my $HEADER = open_die(">$dir/req_head.html");
         my $xhtml_text0 = ($req->content_xhtml(1)) ?
             "<a href='source_xhtml.txt' target='webrobot_source'>source-xhtml</a>" : "";
@@ -328,32 +352,32 @@ EOF
             print_http_header(
                 "Request Header",
                 ($req->{_request}->{_method} || "no_method") . $SP . ($req->{_request}->{_uri} || "no_uri"),
-	        $req->{_request}->{_headers}
+                $req->{_request}->{_headers}
             ),
             "<hr>\n",
             print_http_header(
                 "Response Header",
-	        ($req->{_protocol} || "(no_protocol)") . $SP .
+                ($req->{_protocol} || "(no_protocol)") . $SP .
                     "<a href='../../$HTTP_ERRCODE#$req->{_rc}' target='webrobot_source'>$req->{_rc}</a>" . $SP .
                     ($req->{_msg} || "(no_message)"),
-	        $req->{_headers}
+                $req->{_headers}
             ),
         );
         close $HEADER;
 
-	# write response body (source)
-	my $SRC = open_die(">$dir/source.txt");
+        # FILE: write response body (source)
+        my $SRC = open_die(">$dir/source.txt");
         print {$SRC} $req -> content();
-	close $SRC;
+        close $SRC;
 
-	# write response body (xhtml source)
+        # FILE: write response body (xhtml source)
         if ($req->content_xhtml(1)) { #if (exists $req->{_content_xhtml})
             my $XSRC = open_die(">$dir/source_xhtml.txt");
             print {$XSRC} $req -> content_xhtml();
             close $XSRC;
         }
 
-	# write display version
+        # FILE: write frame(4): write display version
         my $content_type = norm_content_type($req->{_headers}->{"content-type"});
         my $DISPLAY = open_die(">$dir/display.html");
         SWITCH: for (@{$content_type}) {
@@ -419,24 +443,24 @@ EOF
         }
         close $DISPLAY;
 
-	# write frameset ((3), (4)) [resquest/response]
-	my $INDEX = open_die(">$dir/index.html");
-	print {$INDEX} make_html("Request and Response, Header and Data", <<EOF);
+        # write frameset ((3), (4)) [resquest/response]
+        my $INDEX = open_die(">$dir/index.html");
+        print {$INDEX} make_html("Request and Response, Header and Data", <<EOF);
 <frameset cols='60%, 40%'>
     <frame name='requestheader' src='req_head.html'>
     <frame name='responsedatatxt' src='display.html'>
     <noframes>
-	Follow these links (you'd better enable frames):<br>
-	<a href='req_head.html'>Request/Response header</a><br>
-	<a href='display.html'>Display response</a><br>
+        Follow these links (you'd better enable frames):<br>
+        <a href='req_head.html'>Request/Response header</a><br>
+        <a href='display.html'>Display response</a><br>
     </noframes>
 </frameset>
 EOF
-	close $INDEX;
+        close $INDEX;
 
-	# set loop control variables
-	$subrequest_count++;
-	$req = $req -> {_previous};
+        # set loop control variables
+        $subrequest_count++;
+        $req = $req -> {_previous};
     }
 }
 
@@ -457,7 +481,7 @@ sub print_http_header {
 <b>$title</b><br>
 <table border='0'>
     <tr>
-	<td colspan='2' $color nowrap><font size='-1'><b>$firstline</b></font></td>
+        <td colspan='2' $color nowrap><font size='-1'><b>$firstline</b></font></td>
     </tr>
 </table>
 <table>
@@ -497,8 +521,8 @@ sub alter_colors { #static object factory
     my $state = 0;
 
     return sub {
-	$state = 0 if $state >= scalar @colors;
-	return $colors[$state++];
+        $state = 0 if $state >= scalar @colors;
+        return $colors[$state++];
     };
 }
 
@@ -528,23 +552,24 @@ EOF
 
 sub pr_table {
     my ($title, $header, $tbl, $color_obj) = @_;
+    return "" if scalar @$tbl == 0;
     my $ret = "";
     my $columns = scalar(@{$tbl->[0]});
     $ret .= "<table>\n";
     if ($title) {
-	my $color = $color_obj -> ();
+        my $color = $color_obj -> ();
         $ret .= "<tr $color>\n";
         $ret .= "    <th align='left' colspan='$columns'><font size='-1'>$title</font></th>\n";
         $ret .= "</tr>\n";
     }
     if ($header && scalar @$header > 0) {
-	my $color = $color_obj -> ();
+        my $color = $color_obj -> ();
         $ret .= "<tr $color>\n";
         $ret .= "    <th align='left'><font size='-1'>$_</font></th>\n" foreach (@$header);
         $ret .= "</tr>\n";
     }
     foreach my $row (@$tbl) {
-	my $color = $color_obj -> ();
+        my $color = $color_obj -> ();
         my $fb = first_blue();
         $ret .= "<tr valign='top' $color>\n";
         foreach (@$row) {
@@ -599,10 +624,12 @@ sub pr_index_item {
 
 sub fail2str {
     my ($array, $err_code, $type) = @_;
-    my $red = $err_code ? "red" : "green";
-    my $text = $array->[$err_code] || $err_code;
-    $text = "<$_>$text</$_>" foreach (@$type);
-    $text = "<font color='$red'>$text</font>";
+    my $colour = $err_code ? "red" : "green";
+    my $text = defined $err_code ? $array->[$err_code] || "" : "";
+    if ($text) {
+        $text = "<$_>$text</$_>" foreach (@$type);
+        $text = "<font color='$colour'>$text</font>";
+    }
     return $text;
 }
 

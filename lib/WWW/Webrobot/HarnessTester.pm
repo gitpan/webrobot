@@ -59,8 +59,8 @@ EOF_USAGE
 print("\$USAGE"), exit if \$arg eq "-h" || \$arg eq "--help";
 print("$_\\n"), exit if \$arg eq "-n" || \$arg eq "--name";
 print("\$USAGE"), exit if \$arg;
-my \$webrobot = WWW::Webrobot -> new("bin/webtest.prop");
-\$webrobot -> run("$_");
+my \$webrobot = WWW::Webrobot -> new(\\"bin/webtest.prop");
+\$webrobot -> run(\\"$_");
 1;
 EOF
         close FILE;

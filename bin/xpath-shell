@@ -58,16 +58,33 @@ MAIN: {
         print "XPath shell, use 'quit' or EOF (^D) to terminate.\n";
         print $PROMPT;
         my $print_eol = 1;
-        LOOP: while (<STDIN>) {
-            chomp;
-            s/^ *//;
-            s/ *$//;
-            SWITCH: {
-                /^quit$/ || /^q$/ and do {$print_eol = 0; last LOOP};
-                /^\s*$/ and do {last SWITCH};
-                /^h$/ || /^help$/ || /^\?$/ and do {print $HELP; last SWITCH};
+        LOOP: while (my $line = <STDIN>) {
+            chomp $line;
+            $line =~ s/^ *//;
+            $line =~ s/ *$//;
+            my ($cmd, $args) = split /\s+/, $line, 2;
+            SWITCH: foreach ($cmd) {
+                /^$/ and do {
+                    last SWITCH;
+                };
+                /^quit$/ || /^q$/ and do {
+                    $print_eol = 0;
+                    last LOOP;
+                };
+                /^save$/ and do {
+                    print "NOT IMPLEMENTED\n";
+                    #print "Writing to file=$filename\n";
+                    #open FILE, ">$filename" or die "Can't open file=$filename";
+                    #print FILE $xml->as_XML();
+                    #close FILE;
+                    last SWITCH
+                };
+                /^help$/ || /^h$/ || /^\?$/ and do {
+                    print $HELP;
+                    last SWITCH;
+                };
                 eval {
-                    if (my $result = $xpath -> extract($_)) {
+                    if (my $result = $xpath -> extract($line)) {
                         print "$result\n";
                     }
                 };

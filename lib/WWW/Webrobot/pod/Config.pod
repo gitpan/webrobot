@@ -9,9 +9,9 @@ WWW::Webrobot::pod::Config - How to configure Webrobot
  names=application=http://google:4321/troja
 
  # alternate forms
- auth.basic=,site-authentification,mylogin,secretpassword
- auth.basic=|site-authentification|mylogin|secretpassword
- auth.basic=/site-authentification/mylogin/secretpassword
+ auth_basic=,site-authentification,mylogin,secretpassword
+ auth_basic=|site-authentification|mylogin|secretpassword
+ auth_basic=/site-authentification/mylogin/secretpassword
 
  #output=WWW::Webrobot::Print::MakeTestplan
  #output=WWW::Webrobot::Print::Text
@@ -23,6 +23,7 @@ WWW::Webrobot::pod::Config - How to configure Webrobot
  timeout=500
  client_302_bug=1
  #delay=1
+ referrer_bug=1
 
  http_header=Accept-Language=de
  http_header=new-header-element=irgendwas
@@ -91,12 +92,12 @@ a C<key=value> pair (see C<names>)
 
 =item multivalue
 
-a list: The first character is the delimiter (see C<auth.basic>).
+a list: The first character is the delimiter (see C<auth_basic>).
 
 =back
 
 All C<property_name>s that are marked C<@> accept listmode
-(see C<auth.basic>, C<proxy>).
+(see C<auth_basic>, C<proxy>).
 This means you can define multiple C<property_name>s.
 Non-listmode C<property_name>s should be defined only once.
 
@@ -112,9 +113,12 @@ The C<key> defines a name, the C<value> its value.
 The key can be used within a testplan as C<{key}>
 and will be substituted as C<value>.
 
-        names = host=google.de
+Names can be used immediately in the C<names> section.
 
-=item auth.basic (@multivalue)
+        names = host=google.de
+        application: http://${host}:9999/app
+
+=item auth_basic (@multivalue)
 
 Define authorization data.
 Webrobot can authorize at a webserver.
@@ -125,7 +129,7 @@ saying something like C<site-authentification> and
 showing a form with login and password fields.
 Thats the date to put into the configuration file.
 
-        auth.basic=|site-authentification|mylogin|secretpassword
+        auth_basic=|site-authentification|mylogin|secretpassword
 
 =item output (@value)
 
@@ -164,6 +168,17 @@ Webrobot will sleep between request for C<delay> seconds.
 If this option is missing Webrobot won't sleep at all.
 
         delay=1
+
+=item referrer_bug (value)
+
+When sending http referrers the url to be sent must be normalized
+according to the HTTP spec,
+see the C<HTTP::Headers::referer>.
+However - many clients (e.g. Firefox) don't do that right
+but send the unnormalized url.
+Set this option if you want Webrobot to behave in the same way.
+
+        referrer_bug=1
 
 =item http_header (@value)
 

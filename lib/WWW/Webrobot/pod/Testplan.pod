@@ -49,6 +49,8 @@ WWW::Webrobot::pod::Testplan - How to write a test plan for L<webrobot>
 
     <cookies value='clear'/>
 
+    <referrer value='on'/>
+
     <request>
         <method value='GET'/>
         <url value='http://google.de/'/>
@@ -120,6 +122,38 @@ Example:
         <cookies value='off'/>
         <cookies value='clear'/>
 
+=head1 Tag <referrer>
+
+By default no http referrers will be sent.
+You can switch this behaviour on or off or you can just clear the referrer.
+If you want referrers to be switched on
+place the <referrer> tag at least before the request that must be referred to.
+
+Example:
+
+        <referrer value='on'/>
+        <referrer value='off'/>
+        <referrer value='clear'/>
+
+
+=head1 Tag <config>
+
+Read more config variables.
+These variables must be in a name/value format (similar to java.util.Properties).
+The name/value pairs may be read from a file (use attribute "filename") or
+from a program (use attribute "script").
+
+Example:
+
+        <config filename='example-filename.cfg'/>
+        <config script='example-script.sh'/>
+
+Example for the properties format:
+
+        name=value
+        another_name=anothervalue
+
+
 =head1 Tag <request>
 
 This tag denotes a single request (however, see the C<recurse> tag).
@@ -175,9 +209,10 @@ This is done with the data tag:
             <parm name='password' value='secret'/>
         </data>
 
-B<RESTRICTION:> The data tag will work for the POST method only.
-For the GET method you can and have to code it into the url:
+The data tag will work for the GET and POST method.
+For the GET method this is equivalent to adding the parameters:
 C<< <url value='http://.../?login=yourself&amp;password=secret'/> >>
+For the POST method the data is transmitted as the content of the request.
 
 B<RESTRICTION:> Currently there is only support for the
 C<application/x-www-form-urlencoded> content type.
@@ -242,6 +277,10 @@ then the predicate does an exact string compare to the status code.
 If the C<value> is a I<one digit number>
 then the predicate compares to the error class,
 i.e. value B<4> matches all HTTP errors B<4xx>.
+
+=item <string>
+
+This predicate matches whether  the C<value> is in the content.
 
 =item <regex>
 
@@ -447,6 +486,66 @@ I think this is the only case
 where a request ends up in a HTTP I<3xx> response code.
 
 
+=head2 Request <property>
+
+The property tag is used to define new properties.
+It must have a I<name> Attribute that defines the name of the new property.
+It must also have a second attribute that defines the value of the property.
+The value attribute must be one of the following:
+
+=over
+
+=item value
+
+This attribute defines the value of the property to be a simple string.
+
+=item regex
+
+This attribute matches the HTTP response against a regular expression.
+The regular expression B<must> contain a pair of parenthesis that denote the result.
+
+=item xpath
+
+This attribute applies an XPath expression to the HTTP response and
+assigns the result to the property.
+
+=item header
+
+This attribute extract the designated HTTP response header value.
+
+=item status
+
+This attribute is applied to the status line.
+Possible values are
+
+=over
+
+=item code
+
+for the HTTP response code (e.g. '200').
+
+=item message
+
+for the HTTP response message (e.g. 'Ok').
+
+=item protocol
+
+for the HTTP response protocol (usually 'HTTP/1.0' or 'HTTP/1.1').
+
+=back
+
+=back
+
+
+I<Example:>
+        <property name='a_name' value='a_value'/>
+        <property name='a_name' regex='any(value)matched'/>
+        <property name='a_name' xpath='//title/text()'/>
+        <property name='a_name' header='Content-type'/>
+        <property name='a_name' status='code'/>
+
+
+
 
 =head1 Names (Variables)
 
@@ -473,6 +572,21 @@ In your C<testplan.xml> plan use
         <url value='http://{host}:{port}/'/>
     </request>
 
+
+=head2 Predefined names
+
+=over
+
+=item _id
+
+This name is "1" if used with webrobot.
+It takes a value out of [1, 2, ... load.number_of_clients] if used with webrobot-load.
+It is a unique id for any child process.
+
+This is especially usefull if you want to use different logins for each client,
+see the L<config> tag.
+
+=back
 
 
 

@@ -58,7 +58,7 @@ sub is_redirect_fail {
 sub redirect_ok { # INHERITED
     my $self = shift;
     my ($r, $prev_response) = @_;
-    # !!! Note that the interface of this function changed at libwww-perl-5.76!
+    # !!! Note that the interface of this function has changed in libwww-perl-5.76!
     # !!! Call SUPER in a generic way!
 
     # $r is of type HTTP::Request
@@ -73,6 +73,19 @@ sub redirect_ok { # INHERITED
     return $self -> SUPER::redirect_ok(@_) if !defined $self -> {obj_follow};
     $self -> {redirect_fail} = 1 if ! $self -> {obj_follow} -> allowed($r->{_uri});
     return ! $self -> {redirect_fail};
+}
+
+sub enable_referrer {
+    my ($self, $value) = @_;
+    $self->{_enable_referrer} = $value if defined $value;
+    $self->{_referrer} = undef if ! $self->{_enable_referrer};
+    return $self->{_enable_referrer};
+}
+
+sub referrer {
+    my ($self, $value) = @_;
+    $self->{_referrer} = $value if $self->{_enable_referrer} && defined $value;
+    return $self->{_referrer};
 }
 
 1;
@@ -159,6 +172,14 @@ page 61, section 10.3.3, title "302 Found". In short:
 
 You should better correct your server instead of using this method:
 return 303 instead of 302.
+
+=item $ua -> enable_referrer($value)
+
+Enable (1) or disable the HTTP referrer (which spells 'Referer')
+
+=item $ua -> referrer($value)
+
+Set/get the referrer value if referrers have been enabled by enable_referrer.
 
 =back
 

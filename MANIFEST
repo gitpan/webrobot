@@ -11,6 +11,7 @@ example/testplan.xml
 INSTALL
 lib/WWW/Webrobot.pm
 lib/WWW/Webrobot/Assert.pm
+lib/WWW/Webrobot/AssertConstant.pm
 lib/WWW/Webrobot/AssertDefault.pm
 lib/WWW/Webrobot/Attributes.pm
 lib/WWW/Webrobot/CGIHelper.pm
@@ -40,9 +41,11 @@ lib/WWW/Webrobot/Properties.pm
 lib/WWW/Webrobot/Recur/Browser.pm
 lib/WWW/Webrobot/Recur/LinkChecker.pm
 lib/WWW/Webrobot/Recur/RandomBrowser.pm
+lib/WWW/Webrobot/SelftestRunner.pm
 lib/WWW/Webrobot/SendMail.pm
 lib/WWW/Webrobot/Statistic.pm
 lib/WWW/Webrobot/StatisticSummary.pm
+lib/WWW/Webrobot/StupidHTTPD.pm
 lib/WWW/Webrobot/SymbolTable.pm
 lib/WWW/Webrobot/TestplanRunner.pm
 lib/WWW/Webrobot/Tree2Postfix.pm
@@ -58,9 +61,14 @@ META.yml
 README
 t/assert.t
 t/check_modules.t
+t/child_id.t
+t/config.t
+t/get.t
 t/makeplan.t
 t/plan/shuffle.xml
+t/post.t
 t/properties.t
+t/properties/runtime-config.pl
 t/statistic.t
 t/tree2postfix.t
 t/var_expand.t

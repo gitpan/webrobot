@@ -107,15 +107,13 @@ sub eval_postfix {
 
     my $result = pop @stack;
     die "Stack not empty after evaluation, stack = " . Dumper(\@stack) if @stack;
-    #return $result ? (0, undef) : (1, join("\n", @error));
-    return ($result, join("\n", @error));
+    return ($result, \@error);
 }
 
 sub postfix {
     my ($self) = @_;
     return $self->{postfix};
 }
-
 
 
 1;

@@ -35,8 +35,18 @@ sub item_pre {
     ($self -> {format} > 0) && print "$points$arg->{method} $url_out\n";
 }
 
-my @fail_str = ("ok     ", "fail   ", "invalid");
-my @fail_str_long = ("Ok", "FAILED", "INVALID");
+
+sub failstr {
+    my ($array, $default) = @_;
+    $default ||= "";
+    return sub {
+        my ($err_code) = @_;
+        return (defined $err_code) ? $array->[$err_code] || $default : $default;
+    };
+}
+
+my $short = failstr(["ok     ", "fail   ", "invalid"], "<no assertion>");
+my $long = failstr(["Ok", "FAILED", "INVALID"], "<no assertion>");
 
 sub item_post {
     my ($self, $r, $arg) = @_;
@@ -46,15 +56,19 @@ sub item_post {
 	$last_errcode = $_->{_rc};
     }
     if ($self -> {format} > 0) {
-	print " "x8, $fail_str_long[$arg->{fail}], ": ",
+	print " "x8, $long->($arg->{fail}), ": ",
 	$arg->{description} || "No description", "\n";
     }
     else {
-        print $fail_str[$arg->{fail}], " $last_errcode ",
+        print $short->($arg->{fail}), " $last_errcode ",
         $arg->{method}, " ", $arg->{url}, "\n";
+    }
+    if ($arg->{new_properties}) {
+        print " "x8 . "Property '$_->[0]' => '$_->[1]'\n" foreach (@{$arg->{new_properties}});
     }
     push @{$self -> {failed}}, $arg if $arg->{fail};
 }
+
 
 sub global_end {
     my $self = shift;
@@ -65,7 +79,7 @@ sub global_end {
 	else {
 	    print "\n", "Fehlerliste:\n", "------------\n";
 	    foreach my $arg (@{$self -> {failed}}) {
-		print $fail_str[$arg->{fail}], ": ", $arg->{method}, " ", $arg->{url}, "\n";
+		print $short->($arg->{fail}), ": ", $arg->{method}, " ", $arg->{url}, "\n";
 	    }
 	}
     }

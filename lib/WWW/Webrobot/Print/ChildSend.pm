@@ -41,6 +41,7 @@ sub item_pre {
 
 sub item_post {
     my ($self, $r, $arg) = @_;
+    return if !$r; # <cookies>, <request>, <nop>, ...
     my $elaps = $r->elapsed_time();
     print join(" ",
                "TIME",

@@ -9,6 +9,8 @@ use warnings;
 use WWW::Webrobot::UserAgentConnection;
 use WWW::Webrobot::Print::Null;
 
+use WWW::Webrobot::Attributes qw(sym_tbl);
+
 
 =head1 NAME
 
@@ -61,6 +63,7 @@ sub run {
     my ($self, $testplan, $cfg, $sym_tbl) = @_;
 
     $self -> {cfg} = $cfg;
+    $self -> {_sym_tbl} = $sym_tbl;
     $self -> {_ua_list} = {};
     $self -> {_defined} = [];
 
@@ -73,20 +76,15 @@ sub run {
             if defined $entry->{assert_xml};
         $entry->{recurse} = get_plugin($entry->{recurse_xml})
             if defined $entry->{recurse_xml};
-        __PACKAGE__ -> evaluate_names($entry, $sym_tbl);
+        $sym_tbl -> evaluate($entry);
 
         my $user = $self -> _get_ua_connection($cfg, $entry -> {useragent});
 
         # get url in testplan
         $_ -> item_pre($entry) foreach (@$out);
-        my ($r_plan, $fail_plan, $fail_plan_str) = $user -> treat_single_url($entry);
+        my ($r_plan, $fail_plan, $fail_plan_str) = $user -> treat_single_url($entry, $sym_tbl);
         $entry->{fail} = $fail_plan;
         $entry->{fail_str} = $fail_plan_str;
-
-        foreach (keys %{$entry->{define}}) {
-            $sym_tbl -> push_symbol($_, $entry->{define}->{$_} -> ($r_plan));
-        }
-
         $_ -> item_post($r_plan, $entry, $fail_plan) foreach (@$out);
 
         # do recursion
@@ -105,7 +103,7 @@ sub run {
                 };
 
                 $_ -> item_pre($entry_recurse) foreach (@$out);
-                my ($r, $fail, $fail_str) = $user -> treat_single_url($entry_recurse);
+                my ($r, $fail, $fail_str) = $user -> treat_single_url($entry_recurse, $sym_tbl);
                 $entry_recurse->{fail} = $fail;
                 $entry_recurse->{fail_str} = $fail_str;
                 $_ -> item_post($r, $entry_recurse, $fail) foreach (@$out);
@@ -130,7 +128,7 @@ sub run {
 # SAVE MEMORY: delete _content and _content_xhtml of response
 sub save_memory {
     my ($req) = @_;
-    while (defined($req)) { # for all subrequests
+    while (defined $req) { # for all subrequests
         undef $req->{_content};
         undef $req->{_content_xhtml};
         $req = $req -> {_previous};
@@ -158,47 +156,11 @@ sub _get_ua_connection {
     return $self->{_ua_list}->{$user};
 }
 
+ 
+=item $conn -> sym_tbl
 
-sub evaluate_names {
-    my ($pkg, $entry, $sym_tbl) = @_;
-    SWITCH: foreach (ref $entry) {
-        /^HASH$/ and do {
-            foreach my $key (keys %$entry) {
-                # substitute value
-                if (ref $entry->{$key}) {
-                    $pkg -> evaluate_names($entry->{$key}, $sym_tbl);
-                }
-                else {
-                    my $tmp = $entry->{$key};
-                    $pkg -> evaluate_names(\$tmp, $sym_tbl);
-                    $entry->{$key} = $tmp;
-                }
-
-                # substitute key
-                my $nkey = $key;
-                $pkg -> evaluate_names(\$nkey, $sym_tbl);
-                if ($key ne $nkey) {
-                    $entry->{$nkey} = delete $entry->{$key};
-                }
-            }
-            last;
-        };
-        /^ARRAY$/ and do {
-            foreach my $e (@$entry) {
-                $pkg -> evaluate_names((ref $e) ? $e : \$e, $sym_tbl);
-            }
-            last;
-        };
-        /^SCALAR$/ and do {
-            $$entry = $sym_tbl->evaluate($$entry);
-            last;
-        };
-        # my $ref = ref $entry;
-        # die "ARRAY or HASH expected, found $ref";
-    }
-    return $entry;
-}
-
+Get the symbol table, see L<WWW::Webrobot::SymbolTable>.
+Symbols are defined within a config file or within a test plan.
 
 =back
 

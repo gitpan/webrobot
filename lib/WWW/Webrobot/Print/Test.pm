@@ -27,36 +27,53 @@ sub item_pre {
 sub responses {
     my ($r) = @_;
     my $str = "";
-    while (defined($r)) {
-        $str .= "        $r->{_rc} $r->{_request}->{_uri}\n";
+    while (defined $r) {
+        $str .= " "x8 . "$r->{_rc} $r->{_request}->{_uri}\n";
         $r = $r -> {_previous};
     }
     return $str;
 }
 
-sub bool { $_[0] ? "FALSE" : "TRUE " }
+sub bool_assert { $_[0] ? "FALSE" : "TRUE " }
+sub bool { $_[0] ? "TRUE " : "FALSE" }
 
 sub item_post {
     my ($self, $r, $arg) = @_;
-    use Data::Dumper;
-    $arg->{fail_str} ||= ''; # ??? should not need this statement!
-    if (! ok(! $arg->{fail}, "$arg->{url}")) {
-        my $str = <<EOF;
-    Request:     $arg->{method} $arg->{url}
-    Description: $arg->{description}
-    Assertions: @{[ bool($arg->{fail}) ]}
-EOF
-        if (my $s = $arg->{fail_str}) {
-            $s =~ s/^/        /gm;
-            $str .= "$s\n";
+    my $data = $arg->{data};
+    my $out_ok = "$arg->{method} $arg->{url}";
+    $out_ok .= " '$_'=>'$data->{$_}'" foreach (keys %$data);
+    my $tmp = $arg->{fail_str};
+    my $fail_str = (ref $tmp eq 'ARRAY') ? join("\n", @$tmp) : $tmp || "";
+    if (! ok(! $arg->{fail}, $out_ok)) {
+        diag(" "x4 . "Request:     $arg->{method} $arg->{url}");
+        diag(" "x4 . "Description: $arg->{description}");
+        if ($data && scalar keys %$data) {
+            diag(" "x4 . "Data:");
+            diag(" "x8 . "'$_' => '$data->{$_}'") foreach (keys %$data);
         }
-        diag($str . "    Responses:\n" . responses($r));
+        diag(" "x4 . "Assertions:  " . bool_assert($arg->{fail}));
+        if (my $s = $fail_str) {
+            $s =~ s/^(.)/ bool($1) /gme;
+            $s =~ s/^/        /gm;
+            diag($s);
+        }
+        diag(" "x4 . "Responses:\n" . responses($r));
+        if ($arg->{new_properties}) {
+            diag(" "x4 . "New properties:\n");
+            diag("property '$_->[0]' => '$_->[1]'\n") foreach (@{$arg->{new_properties}});
+        }
+        if ($r && (my $c = $r->content)) {
+            my $line = substr($c, 0, 60);
+            $line =~ s/\\/\\\\/gs;
+            $line =~ s/([\x00-\x1F\x7F\x80-\x9F\xFF])/ sprintf("\\%03d", ord($1)) /gse;
+            diag(" "x4 . "Content: [$line]");
+        }
     }
 
 }
 
 sub global_end {
-    my $self = shift;
+    #my $self = shift;
 }
 
 1;

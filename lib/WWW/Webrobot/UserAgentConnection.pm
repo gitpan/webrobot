@@ -10,8 +10,10 @@ use HTTP::Cookies;
 use HTTP::Request::Common;
 use Time::HiRes;
 
+use WWW::Webrobot::Attributes qw(ua cfg);
 use WWW::Webrobot::MyUserAgent;
 use WWW::Webrobot::Ext::General::HTTP::Response;
+use WWW::Webrobot::AssertConstant;
 
 
 =head1 NAME
@@ -72,7 +74,6 @@ sub new {
 
     my $self = {
         _ua => $ua,
-        _cookie => $cookie_jar,
         _cfg => $cfg,
     };
     bless ($self, $class);
@@ -83,16 +84,32 @@ sub new {
 
 =item $conn -> ua
 
-get the user agent, see L<LWP::UserAgent>
+Get the user agent, see L<LWP::UserAgent>
+
+=item $conn -> cfg
+
+Get the (internal) config data structure
 
 =cut
 
-sub ua {
-    my $self = shift;
-    return $self -> {_ua};
+
+#privat
+sub norm_request {
+    my ($self, $r) = @_;
+    my $referrer = $self->ua->referrer();
+    if ($referrer) {
+        if ($self->cfg->{referrer_bug}) {
+            $r -> headers() -> header(Referer => $referrer);
+        }
+        else {
+            $r -> headers() -> referer($referrer);
+        }
+    }
+    $self->ua->referrer($r->uri);
+    return $r;
 }
 
-
+#static private
 sub norm_response {
     my ($r) = @_;
     if (defined $r && ($r->protocol || "") eq 'HTTP/0.9' && ($r->message || "") eq 'EOF') {
@@ -112,33 +129,41 @@ my %ACTION = (
         return undef;
     },
     HEAD => sub {
-	my ($ua, $url, $data, @header) = @_;
-        return norm_response($ua -> request(HEAD(@_)));
+        my ($uac, $arg, $sym_tbl) = @_;
+        my %header = %{$uac->cfg->{http_header}};
+        return norm_response($uac -> ua -> request($uac->norm_request(HEAD($arg->{url}, %header))));
     },
     GET => sub {
-	my ($ua, $url, $data, @header) = @_;
-        return norm_response($ua -> request(GET($url, @header)));
-        #return $ua -> request(HTTP::Request -> new(GET => $url, @header));
+        my ($uac, $arg, $sym_tbl) = @_;
+        my %header = %{$uac->cfg->{http_header}};
+        my $data = $arg->{data};
+        my $url = $arg->{url};
+        if ($data && scalar keys %$data) {
+            my $tmp_request = POST($arg->{url}, $arg->{data}, %header);
+            $url .= "?" . $tmp_request->content() if $tmp_request->content();
+        }
+        my $request = GET($url, %header);
+        return norm_response($uac -> ua -> request($uac->norm_request($request)));
     },
     POST => sub {
-	my ($ua, $url, $data, @header) = @_;
-        return norm_response($ua -> request(POST($url, $data, @header)));
+        my ($uac, $arg, $sym_tbl) = @_;
+        my %header = %{$uac->cfg->{http_header}};
+        return norm_response($uac -> ua -> request($uac->norm_request(POST($arg->{url}, $arg->{data}, %header))));
     },
     PUT => sub {
-	my ($ua, $url, $data, @header) = @_;
-        return norm_response($ua -> request(PUT(@_)));
+        my ($uac, $arg, $sym_tbl) = @_;
+        my %header = %{$uac->cfg->{http_header}};
+        return norm_response($uac -> ua -> request($uac->norm_request(PUT($arg->{url}, $arg->{data}, %header))));
     },
     COOKIES => sub {
-	my ($ua, $url, $data, @header) = @_;
-        SWITCH: foreach ($url) {
-            m/^clear$/i and do {
-                my $cookie_jar = HTTP::Cookies -> new(File => "cookies.txt", AutoSave => 0);
-                $ua->cookie_jar($cookie_jar) if $ua->cookie_jar();
-                last;
-            };
-            m/^on$/i and do {
-                my $cookie_jar = HTTP::Cookies -> new(File => "cookies.txt", AutoSave => 0);
-                $ua->cookie_jar($cookie_jar);
+        my ($uac, $arg, $sym_tbl) = @_;
+        my $ua = $uac->ua;
+        SWITCH: foreach ($arg->{url}) {
+            m/^on$/i || m/^clear$/i && $ua->cookie_jar() and do {
+                if ($ua->cookie_jar()) {
+                    my $cookie_jar = HTTP::Cookies -> new(File => "cookies.txt", AutoSave => 0);
+                    $ua->cookie_jar($cookie_jar);
+                }
                 last;
             };
             m/^off$/i and do {
@@ -146,12 +171,62 @@ my %ACTION = (
                 last;
             };
         }
-	return undef;
+        return undef;
+    },
+    REFERRER => sub {
+        my ($uac, $arg, $sym_tbl) = @_;
+        my $ua = $uac->ua;
+        SWITCH: foreach ($arg->{url}) {
+            m/^clear$/i and do {
+                $ua->referrer("");
+                last;
+            };
+            m/^on$/i and do {
+                $ua->enable_referrer(1);
+                last;
+            };
+            m/^off$/i and do {
+                $ua->enable_referrer(0);
+                last;
+            };
+        }
+        return undef;
     },
     BASIC_REALM => sub {
-	my ($ua, $url, $data, @header) = @_;
-	$ua -> set_basic_realm($url);
-	return undef;
+        my ($uac, $arg, $sym_tbl) = @_;
+        $uac -> ua -> set_basic_realm($arg->{url});
+        return undef;
+    },
+    CONFIG => sub {
+        my ($uac, $arg, $sym_tbl) = @_;
+        eval {
+            SWITCH: foreach ($arg->{_mode}) {
+                /^filename$/ || /^script$/ and do {
+                    my $filename = $arg->{url};
+                    $filename .= " |" if /^script$/;
+                    my $err_msg = /^script$/ ? "Can't start script" : "Can't read file";
+
+                    my $handle = do {local *FH; *FH};
+                    { # 'open' produces a warning if the shell script doesn't exist!
+                        no warnings;
+                        open $handle, "$filename" or die "$err_msg: '$arg->{url}'";
+                    }
+                    my $new_variables = WWW::Webrobot::Properties -> new() -> load_handle($handle) or
+                        die "Can't read data from external program '$arg->{url}'";
+                    my @new_vars = map { [$_, $new_variables->{$_}] } sort keys %$new_variables;
+                    $arg->{new_properties} = \@new_vars;
+                    foreach (keys %$new_variables) {
+                        $sym_tbl->define_symbol($_, $new_variables->{$_});
+                    }
+                    close $handle;
+                    last;
+                };
+                die "found $_ in \$arg->{_mode}, expected 'filename', 'script'";
+            }
+        };
+        my $err = $@;
+        $arg->{assert} = new WWW::Webrobot::AssertConstant($err, $err ? "0 $err" : undef);
+        return undef;
     },
 );
 
@@ -162,7 +237,7 @@ sub check_assertion {
 }
 
 
-=item $user -> treat_single_url ($arg)
+=item $user -> treat_single_url ($arg, $sym_tbl)
 
 C<$arg> is an entry of a testplan, see L<WWW::Webrobot::pod::Testplan>.
 
@@ -171,42 +246,83 @@ Returns the fail state
 =cut
 
 sub treat_single_url {
-    my ($self, $arg) = @_;
+    my ($self, $arg, $sym_tbl) = @_;
+    #use Data::Dumper; print STDERR Dumper $sym_tbl;
 
     sleep($self->{_cfg}->{delay}) if $self->{_cfg}->{delay};
 
     $self -> {_ua} -> clear_redirect_fail();
     my ($r, $fail, $fail_str);
-    my $header = [ %{$self->{_cfg}->{http_header} || {}} ]; # cache this value?
+    $self->cfg->{http_header} ||= {}; # ??? really necessary?
+    $arg->{data} ||= {}; # ??? really necessary?
     my $METHOD = $ACTION{$arg->{method}} or
         die "'$arg->{method}' is no valid method, expected: ", join ", ", keys %ACTION;
 
-    # do HTTP request
+    # do test plan entry (usually HTTP request)
     my ($sec, $usec) = Time::HiRes::gettimeofday();
     eval {
         # NOTE: $r may be undef depending on $METHOD
-	$r = $METHOD->($self->{_ua}, $arg->{url}, $arg->{data} || {}, @$header);
+        $r = $METHOD->($self, $arg, $sym_tbl);
     };
+    my $exception = $@;
     my $elaps = Time::HiRes::tv_interval([$sec, $usec], [ Time::HiRes::gettimeofday() ]);
     $r->elapsed_time($elaps) if $r;
 
     # check result
     if ($self -> {_ua} -> is_redirect_fail()) {
-	$fail = 0;
+        $fail = 0;
     }
-    elsif ($@) {
-	($r, $fail, $fail_str) = (undef, 2, "ANY ERROR");
-	# evtl. Fehler diversifizieren, z.B.
-	# * $arg->{method}==undef
-	# * $arg->{url}==undef
-	# * URL nicht unterstützt
-	# * Aufruf geht schief
+    elsif ($exception) {
+        $r = undef;
+        ($fail, $fail_str) = (2, "2 CALL TO METHOD '$arg->{method}', URL '$arg->{url}' FAILED: $exception");
     }
-    elsif (! defined $r) {
-	($r, $fail, $fail_str) = (undef, 0, "0 RESPONSE IS NULL");
+    elsif (! defined $arg->{assert}) {
+        # Method like COOKIES that don't support assertions
+        ($fail, $fail_str) = (0, undef);
     }
     else {
-	($fail, $fail_str) = check_assertion($r, $arg->{assert});
+        ($fail, $fail_str) = check_assertion($r, $arg->{assert});
+    }
+
+    if (!$fail && $arg->{property}) {
+        # evaluate new names
+        foreach (@{$arg->{property}}) {
+            my ($mode, $name, $expr) = @$_;
+            SWITCH: foreach ($mode) {
+                /^value$/ and do {
+                    $sym_tbl -> define_symbol($name, $expr);
+                    last;
+                };
+                /^regex$/ and do {
+                    next if ! $r;
+                    my ($value) = $r->content =~ m/$expr/;
+                    $sym_tbl -> define_symbol($name, $value);
+                    last;
+                };
+                /^xpath$/ and do {
+                    next if ! $r;
+                    $sym_tbl -> define_symbol($name, $r->xpath($expr));
+                    last;
+                };
+                /^header$/ and do {
+                    next if ! $r;
+                    $sym_tbl -> define_symbol($name, $r->header($expr));
+                    last;
+                };
+                /^status$/ and do {
+                    next if ! $r;
+                    my @val = (qw/code protocol message/);
+                    #my %val_hash; @val_hash{@val} = (1)x@val;
+                    my %val_hash = map {$_=>1} @val;
+                    die("found status=$expr, expected " . join(", ", map {"'$_'"} @val))
+                        if ! $val_hash{$expr};
+                    $sym_tbl -> define_symbol($name, $r->header($expr));
+                    last;
+                };
+                die "found attribute '$_', expected 'value', 'regex', 'xpath', 'header', 'status'";
+            }
+        }
+        #use Data::Dumper; print STDERR Dumper $arg->{property};
     }
 
     return ($r, $fail, $fail_str);

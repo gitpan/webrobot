@@ -8,12 +8,12 @@ application
 
     <request>
         <method value='NOP'/>
-        <description value='Barney first name is {barneys_firstname}'/>
+        <description value='Barney first name is ${barneys_firstname}'/>
     </request>
 
     <request>
         <method value='NOP'/>
-        <description value='Barney second name is {barneys_surname}'/>
+        <description value='Barney second name is ${barneys_surname}'/>
     </request>
 
 

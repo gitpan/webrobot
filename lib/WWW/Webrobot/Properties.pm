@@ -55,12 +55,12 @@ sub clear_properties {
 sub make_key_value {
     my $self = shift;
     foreach my $prop (@{$self->{_key_value}}) {
-        my %hash = ();
+        my @list = ();
         foreach my $elem (@{$self->{prop}->{$prop}}) {
             my ($key, $value) = split /\s*=\s*/, $elem, 2;
-            $hash{$key} = $value;
+            push @list, [$key, $value] if defined $key && $key =~ m/./;
         }
-        $self->{prop}->{$prop} = \%hash;
+        $self->{prop}->{$prop} = \@list;
     }
 }
 
@@ -90,7 +90,7 @@ sub structurize {
 }
 
 # private
-sub load {
+sub _load_basic {
     my ($self, $input, $cmd_properties) = @_;
     croak "No handle specified" if !defined $input;
     $self->clear_properties();
@@ -111,23 +111,30 @@ sub load {
         next if /^\s*[#!]/ || /^\s*$/; # skip comment, lines containing white space only
         s/(\\ |[^\s\\])\s+$/$1/; # skip trailing white space except '\ ' and '\'
         my ($key, $tmp0, $tmp1, $value) = /^\s*(([^=: ])+)\s*([=:])?\s*(.*)$/;
-        (my $new_key = $key) =~ s/^(.*)\.\d+$/$1/;
-        $key = $new_key if $self->{_listmode_hash}->{$new_key};
+        $key = "" if !defined $key;
         $value = "" if !defined $value;
 
-        if (ref $self->property($key) eq 'ARRAY') {
-            push @{$self->property($key)}, $value;
-        }
-        else {
-            $self->property($key, $value);
+        if ($key ne "") {
+            (my $new_key = $key) =~ s/^(.*)\.\d+$/$1/;
+            $new_key = "" if !defined $new_key;
+            $key = $new_key if $self->{_listmode_hash}->{$new_key};
+
+            if (ref $self->property($key) eq 'ARRAY') {
+                push @{$self->property($key)}, $value;
+            }
+            else {
+                $self->property($key, $value);
+            }
         }
     }
 
+    #use Data::Dumper; print STDERR Dumper $self->{prop};
     $self->property(@$_) foreach (@$cmd_properties);
     $self->make_key_value();
     $self->make_multi_value();
     $self->structurize();
     unescape($self->{prop});
+    #use Data::Dumper; print STDERR Dumper $self->{prop};
     return $self->{prop};
 }
 
@@ -172,7 +179,7 @@ sub unescape {
 
 sub load_string {
     my ($self, $string, $cmd_properties) = @_;
-    return $self->load(sub {
+    return $self->_load_basic(sub {
         (my $str, $string) = $string =~ m/^([^\n]*)\n(.*)$/s;
         return $_ = $str;
     }, $cmd_properties);
@@ -180,7 +187,7 @@ sub load_string {
 
 sub load_handle {
     my ($self, $handle, $cmd_properties) = @_;
-    return $self->load(sub {$_ = <$handle>; return $_;}, $cmd_properties);
+    return $self->_load_basic(sub {$_ = <$handle>; return $_;}, $cmd_properties);
 }
 
 sub load_file {
@@ -190,6 +197,16 @@ sub load_file {
     my $cfg = $self->load_handle(*HANDLE, $cmd_properties);
     close HANDLE;
     return $cfg;
+}
+
+sub load {
+    my ($self, $source, $cmd_properties) = @_;
+    if (ref $source eq 'SCALAR') {
+        return $self->load_file($$source, $cmd_properties);
+    }
+    elsif (! ref $source) {
+        return $self->load_string($source, $cmd_properties);
+    }
 }
 
 1;

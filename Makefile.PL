@@ -24,6 +24,10 @@ WriteMakefile(
                      #'HTML::Tagset' => 0,
                      'XML::Parser' => 0,
                      'XML::XPath' => 0,
+                         ### XML::XPath load the following modules
+                         # Unicode::String
+                         # Unicode::Map
+                         # enum
                      'Time::HiRes' => 0,
                      'Unicode::Lite' => 0,
 

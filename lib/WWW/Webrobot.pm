@@ -5,7 +5,7 @@ use warnings;
 # Author: Stefan Trcek
 # Copyright(c) 2004 ABAS Software AG
 
-*VERSION = \'0.13';
+*VERSION = \'0.50';
 
 use Carp;
 use WWW::Webrobot::Properties;
@@ -15,6 +15,18 @@ use WWW::Webrobot::TestplanRunner;
 use WWW::Webrobot::Global;
 use WWW::Webrobot::AssertDefault;
 
+
+my %arg_default = (
+                   data => {},
+                   option => {},
+                   assert => WWW::Webrobot::AssertDefault -> new(),
+                   description => '',
+                   useragent => '',
+                   define => {},
+                   is_recursive => 0,
+                   fail_str => '',
+                   fail => -1,
+                  );
 
 =head1 NAME
 
@@ -76,7 +88,6 @@ It is needed for webrobot-load but is declared deprecated.
 
 sub cfg {
     my ($self, $cfg, $cmd_param) = @_;
-    use Carp;
     confess("config data: hash no more allowed")
         if (ref $cfg eq "HASH"); # formerly allowed, check for unclean updates
     $self->{cfg} = __PACKAGE__->read_configuration($cfg, $cmd_param) if defined $cfg;
@@ -99,21 +110,23 @@ Read in the testplan from a file $test_plan and run it.
 
 sub run {
     my $self = shift;
-    my ($test_plan_name) = @_;
+    my ($test_plan_name, $child_id) = @_;
+    $child_id ||= 1;
     #my $cfg = $self -> cfg() or die "Missing config definition";
 
-    #$test_plan_name = $test_plan_name || $cfg -> {testplan} or
     $test_plan_name = $test_plan_name || $self->cfg->{testplan} or
         die "No testplan defined!";
-    WWW::Webrobot::Global->plan_name($test_plan_name);
+    WWW::Webrobot::Global->plan_name(ref $test_plan_name ? $$test_plan_name : "__IN_MEMORY__");
 
     my $sym_tbl = WWW::Webrobot::SymbolTable->new();
-    foreach (keys %{$self->cfg->{names}}) {
-        $sym_tbl -> push_symbol($_, $self->cfg->{names}->{$_});
+    foreach (@{$self->cfg->{names}}) {
+        my ($key, $value) = @$_;
+        $sym_tbl -> define_symbol($key, $sym_tbl->evaluate($value));
     }
+    $sym_tbl -> define_symbol("_id", $child_id);
     my $test_plan = __PACKAGE__->read_testplan($test_plan_name, $sym_tbl);
 
-    #return WWW::Webrobot::TestplanRunner -> new() -> run($test_plan, $cfg, $sym_tbl);
+    $sym_tbl = WWW::Webrobot::SymbolTable->new();
     return WWW::Webrobot::TestplanRunner -> new() -> run($test_plan, $self->cfg, $sym_tbl);
 }
 
@@ -121,14 +134,22 @@ sub read_testplan {
     my ($pkg, $test_plan_name, $sym_tbl) = @_;
 
     my $parser = WWW::Webrobot::XML2Tree->new();
-    my $tree = $parser -> parsefile($test_plan_name);
+    my $tree =
+        (! ref $test_plan_name) ?  $parser -> parse($test_plan_name) :
+        (ref $test_plan_name eq 'SCALAR') ? $parser -> parsefile($$test_plan_name) :
+        undef;
+
+    # expand all properties
+    $sym_tbl->evaluate($tree);
+
+    # convert test plan tree to internal data structure
     my $test_plan = xml2testplan($tree, $sym_tbl);
 
     # check and normalize 'test_plan'
     die "Can't read file $test_plan_name, err=$?, msg=$@" if $@;
     ref($test_plan) or die "No valid testplan!";
     foreach (@$test_plan) {
-        $_ = __PACKAGE__->norm_testplan_entry($_, $sym_tbl);
+        $_ = {%arg_default, %$_};
     }
     return $test_plan;
 }
@@ -188,9 +209,9 @@ sub xml2planlist {
                 my $parm = get_data($content);
                 $sym_tbl->push_scope();
                 foreach (keys %$parm) {
-                    $sym_tbl->push_symbol($_, $parm->{$_});
+                    $sym_tbl->define_symbol($_, $parm->{$_});
                 }
-                my $iplan = __PACKAGE__->read_testplan($fname, $sym_tbl);
+                my $iplan = __PACKAGE__->read_testplan(\$fname, $sym_tbl);
                 push @$plan, @$iplan;
                 $sym_tbl->pop_scope();
                 last;
@@ -203,7 +224,25 @@ sub xml2planlist {
                 }
                 last;
             };
-            assert(0, "found <$tag>, expected <plan>, <request>, <include>, <cookies>");
+            /^referrer$/ and do {
+                for ($content->[0]->{value} || "") {
+                    assert(m/^on$/i || m/^off$/i || m/^clear$/i,
+                           "found '$_', expected 'on', 'off, 'clear'");
+                    push @$plan, {method => "REFERRER", url => "$_"};
+                }
+                last;
+            };
+            /^config$/ and do {
+                my @commands = ();
+                push(@commands, "filename") if $content->[0]->{filename};
+                push(@commands, "script") if $content->[0]->{script};
+                assert(@commands, "attribute 'filename' or 'script' expected!");
+                for (@commands) {
+                    push @$plan, {method=>"CONFIG", _mode=>$_, url=>$content->[0]->{$_} || ""};
+                }
+                last;
+            };
+            assert(0, "found <$tag>, expected <plan>, <request>, <include>, <cookies>, <referrer>, <config>");
         }
     }
     return $plan;
@@ -252,7 +291,16 @@ sub xml2entry {
                 $entry{recurse_xml} = $content;
                 last;
             };
-            assert(0, "<method>, <url>, <description>, <useragent>, <data>, <assert>, <recurse> expected");
+            /^property$/ and do {
+                foreach (qw/value regex xpath header/) {
+                    if ($attr->{$_}) {
+                        push @{$entry{property}}, [$_, $attr->{name}, $attr->{$_}];
+                        last;
+                    }
+                }
+                last;
+            };
+            assert(0, "found <$tag>, expected <method>, <url>, <description>, <useragent>, <data>, <assert>, <recurse>, <property>");
         }
     }
     return \%entry;
@@ -316,12 +364,12 @@ sub read_configuration {
 
     # read config file in 'properties' format
     my $config = WWW::Webrobot::Properties->new(
-        listmode => [qw(names auth_basic output http_header proxy no_proxy)],
-        key_value => [qw(names http_header proxy)],
+        listmode    => [qw(names auth_basic output http_header proxy no_proxy)],
+        key_value   => [qw(names http_header proxy)],
         multi_value => [qw(auth_basic)],
         structurize => [qw(load mail)],
     );
-    my $cfg = $config->load_file($cfg_name, $cmd_param);
+    my $cfg = $config->load($cfg_name, $cmd_param);
 
     # adjust property 'output' to internal data structure
     $cfg->{output} = [ $cfg->{output} ] if ref($cfg->{output}) ne "ARRAY";
@@ -339,36 +387,36 @@ sub read_configuration {
     # adjust property 'auth_basic' to internal data structure
     my %intern_realm = ();
     foreach (@{$cfg->{auth_basic}}) {
-        my ($id, @value) = @$_;
-        $intern_realm{$id} = \@value;
+        my ($id, $login, $passwd) = @$_;
+        $intern_realm{$id} = [$login, $passwd];
     }
     $cfg->{auth_basic} = \%intern_realm;
 
-    # normalize
+    # adjust 'http_header'
+    $cfg->{http_header} = array2hash($cfg->{http_header});
+
+    # adjust 'proxy'
+    $cfg->{proxy} = array2hash($cfg->{proxy});
+
+    # adjust 'names'
+    #$cfg->{names} = array2hash($cfg->{names});
+
+    # normalize 'load'
     $cfg->{load}->{number_of_clients} ||= 1 if defined $cfg->{load};
+
     return $cfg;
 }
 
 
-my %arg_default = (
-                   data => {},
-                   option => {},
-                   assert => WWW::Webrobot::AssertDefault -> new(),
-                   description => '',
-                   useragent => '',
-                   define => {},
-                   is_recursive => 0,
-                   fail_str => '',
-                   fail => -1,
-                  );
-
-sub norm_testplan_entry {
-    my ($self, $entry, $sym_tbl) = @_;
-    my %arg = (%arg_default, %$entry);
-    my $ret = WWW::Webrobot::TestplanRunner -> evaluate_names(\%arg, $sym_tbl);
-    return $ret;
+sub array2hash {
+    my ($http_header) = @_;
+    my %hash = ();
+    foreach (@$http_header) {
+        my ($key, $value) = @$_;
+        $hash{$key} = $value;
+    }
+    return \%hash;
 }
-
 
 =back
 

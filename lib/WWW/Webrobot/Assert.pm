@@ -22,10 +22,14 @@ my $predicate = {
         my $rc = $r->code;
         return $expect == $rc || 100*$expect <= $rc && $rc < 100*($expect+1) ? 1 : 0;
     },
+    string => sub {
+        my ($r, $tree) = @_;
+        my $pattern = quotemeta($tree->{value});
+        return $r->content =~ m/$pattern/ ? 1 : 0;
+    },
     regex => sub {
         my ($r, $tree) = @_;
         my $pattern = $tree->{value};
-        # ??? quotemeta in pattern?
         return $r->content =~ m/$pattern/ ? 1 : 0;
     },
     xpath => sub {

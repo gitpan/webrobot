@@ -119,7 +119,7 @@ sub child {
     my $webrobot = WWW::Webrobot -> new($self->{cfg_name}, $self->{cmd_param});
     return sub {
         my ($child_id) = @_;
-        my $exit = $webrobot -> run($testplan_name);
+        my $exit = $webrobot -> run($testplan_name, $child_id);
     }
 }
 

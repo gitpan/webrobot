@@ -35,11 +35,11 @@ my $testplan_name = $cgi->param('testplan');
 MAIN: {
     my $cmd_param = WWW::Webrobot::CGIHelper::param2list($cgi, [qw(cfg testplan)]);
     push @$cmd_param, ["output", "WWW::Webrobot::Print::ChildSend"];
-    my $wrl = WWW::Webrobot::WebrobotLoad->new($cfg_name, $cmd_param);
+    my $wrl = WWW::Webrobot::WebrobotLoad->new(\$cfg_name, $cmd_param);
 
     # start processes
     my ($sec, $usec) = Time::HiRes::gettimeofday();
-    my ($statistic, $histogram, $url_statistic, $http_errcode, $assert_ok) = $wrl -> run($testplan_name);
+    my ($statistic, $histogram, $url_statistic, $http_errcode, $assert_ok) = $wrl -> run(\$testplan_name);
     my $elaps = Time::HiRes::tv_interval([$sec, $usec], [ Time::HiRes::gettimeofday() ]);
     $statistic->{total_time} = $elaps;
 
@@ -61,7 +61,7 @@ MAIN: {
         }
         select($FH || $_);
         WWW::Webrobot::StatisticSummary::url_statistic($url_statistic, "\n=== URL Statistic ===");
-        WWW::Webrobot::StatisticSummary::statistic($statistic, "\n=== Statistic ===\nNumber of clients: $wrl->cfg->{load}->{number_of_clients}");
+        WWW::Webrobot::StatisticSummary::statistic($statistic, "\n=== Statistic ===\nNumber of clients: " . $wrl->cfg->{load}->{number_of_clients});
         WWW::Webrobot::StatisticSummary::histogram($histogram, 0, $scale, "\n=== Histogram (x-axis logarithmic) ===");
         WWW::Webrobot::StatisticSummary::histogram($histogram, 1, $scale, "\n=== Histogram (both axis logarithmic) ===");
         WWW::Webrobot::StatisticSummary::http_errcodes($http_errcode, "\n=== HTTP Error Codes ===\ncode  count");
