@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!--
+FREE VARIABLES
+application
+-->
+
+<!--
+# Test: cookies
+-->
+
+<plan>
+
+
+    <entry>
+        <method value='GET'/>
+        <url value='{application}/tree.do?id=3&amp;a=1&amp;treeId=troja.mainmenu.id'/>
+        <description value='Aufruf 1'/>
+    </entry>
+
+    <entry>
+        <method value='GET'/>
+        <url value='{application}/tree.do?id=3&amp;a=1&amp;treeId=troja.mainmenu.id'/>
+        <description value='Aufruf 2'/>
+    </entry>
+
+    <entry>
+        <method value='GET'/>
+        <url value='{application}/tree.do?id=3&amp;a=1&amp;treeId=troja.mainmenu.id'/>
+        <description value='Aufruf 3'/>
+    </entry>
+    
+    <cookies value='off'/>
+
+    <entry>
+        <method value='GET'/>
+        <url value='{application}/tree.do?id=3&amp;a=1&amp;treeId=troja.mainmenu.id'/>
+        <description value='Aufruf 4'/>
+    </entry>
+
+    <entry>
+        <method value='GET'/>
+        <url value='{application}/tree.do?id=3&amp;a=1&amp;treeId=troja.mainmenu.id'/>
+        <description value='Aufruf 5'/>
+    </entry>
+
+    <cookies value='ON'/>
+
+    <entry>
+        <method value='GET'/>
+        <url value='{application}/tree.do?id=3&amp;a=1&amp;treeId=troja.mainmenu.id'/>
+        <description value='Aufruf 6'/>
+    </entry>
+
+    <entry>
+        <method value='GET'/>
+        <url value='{application}/tree.do?id=3&amp;a=1&amp;treeId=troja.mainmenu.id'/>
+        <description value='Aufruf 7'/>
+    </entry>
+
+    <cookies value='clear'/>
+
+    <entry>
+        <method value='GET'/>
+        <url value='{application}/tree.do?id=3&amp;a=1&amp;treeId=troja.mainmenu.id'/>
+        <description value='Aufruf 8'/>
+    </entry>
+
+    <entry>
+        <method value='GET'/>
+        <url value='{application}/tree.do?id=3&amp;a=1&amp;treeId=troja.mainmenu.id'/>
+        <description value='Aufruf 9'/>
+    </entry>
+
+</plan>

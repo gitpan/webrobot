@@ -1,0 +1,80 @@
+#!/usr/bin/perl -w
+use strict;
+use warnings;
+
+use CGI qw(:standard -no_xhtml);
+#use diagnostics
+
+use WWW::Webrobot;
+use WWW::Webrobot::SendMail;
+use WWW::Webrobot::CGIHelper;
+
+
+my $USAGE = <<EOF;
+USAGE: webrobot [options]
+Options are written 'option_name=value_of_option'
+
+option           description
+------------------------------------------------------------------------
+cfg              test configuration [mandatory], must end in '.prop'
+testplan         overwrite 'testplan' in cfg
+<property>       set property
+EOF
+
+my ($p1, $muell) = @ARGV;
+do {print $USAGE; exit} if ($p1 || "") =~ /^-(-)?h(elp)?$/i;
+
+my $cgi = CGI -> new();
+my $cfg_name = $cgi->param('cfg') or die "No configuration file defined!";
+my $test_plan_name = $cgi->param('testplan');
+
+MAIN: {
+    my $cmd_param = WWW::Webrobot::CGIHelper::param2list($cgi, [qw(cfg testplan)]);
+    my $webrobot = WWW::Webrobot -> new($cfg_name, $cmd_param);
+    my $exit = $webrobot -> run($test_plan_name);
+
+    # conditionally send mail
+    if (! WWW::Webrobot::SendMail::send_mail($webrobot -> cfg() -> {mail}, $exit)) {
+        print "Can't send mail:\n$@" if $@;
+    }
+
+    exit $exit;
+}
+
+1;
+
+=head1 NAME
+
+webrobot - run a testplan
+
+=head1 SYNOPSIS
+
+ webrobot cfg=example/cfg.prop testplan=example/testplan.xml
+
+=head1 DESCRIPTION
+
+This command runs a testplan.
+It takes two parameters,
+both are mandatory:
+
+=over
+
+=item cfg
+
+This is the configuration file,
+see L<pod::Config>.
+
+=item testplan
+
+This is the testplan to run,
+see L<pod::Testplan>.
+
+=back
+
+
+=head1 SEE ALSO
+
+L<bin::webrobot-load>
+
+
+=cut

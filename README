@@ -1,0 +1,51 @@
+Purpose
+=======
+
+WebRobot is a data driven http client heavily based on LWP.  It can be
+used for
+
+* automating http requests
+* for a kind of web based unit tests
+* for stress tests of web servers (limited).
+
+For more information see lib/pod/README.pod and lib/pod/WebRobot.pm.
+You may want to format it before:
+
+    pod2text lib/pod/README.pod        > README.txt
+    pod2text lib/WebRobot/WebRobot.pod > WebRobot.txt
+
+
+Installation
+============
+
+For Installation and prerequisites see file INSTALL.
+
+
+Support
+=======
+
+This software is considered alpha because
+
+* Some interfaces may change.
+* There are not enough tests that assure functionality.
+* It's my first project uploaded on CPAN, so be patient an e-mail me problems.
+
+Though - there seem to be no major stability problems.  I tested it on
+Linux (perl 5.6.1 and 5.8.0) and Windows 2000 (perl 5.8.0 with LWP
+patch).
+
+For bugs and questions please
+    mailto:webrobot@abas.de
+as long as the mailing list isn't alive.
+
+For further information visit http://webrobot.abas.de in some weeks.
+This site is currently without content. I will publish on this site
+
+* screenshots
+* perl for Windows with all necessary modules included
+* the mailing list
+
+If you want to contribute to this project please
+    mailto:webrobot@abas.de
+
+========================================================================

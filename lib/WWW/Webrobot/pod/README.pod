@@ -1,0 +1,135 @@
+
+=head1 What is WebRobot
+
+WebRobot is a data driven http client heavily based on L<LWP|LWP>.
+It can be used
+
+=over
+
+=item *
+
+for automating http requests
+
+=item *
+
+for a kind of web based unit tests
+
+=item *
+
+for (limited) stress tests of web servers
+
+=item *
+
+for analyzing http communication
+
+=back
+
+
+=head1 How to use it
+
+=over
+
+=item *
+
+You define your requests in an XML file,
+possibly with additional information like a description or an assertion.
+This is called to be a test plan.
+
+=item *
+
+You configure WebRobot (proxies, authentification, ...)
+with a simple properties file.
+
+=item *
+
+You run L<webrobot.pl> with your test plan and configuration file.
+
+=item *
+
+You inspect the output in text or html form depending on the output filters in use.
+
+=back
+
+
+=head1 Some features
+
+=over
+
+=item *
+
+The test plan format is XML.
+The plan to be processed includes a list of http/https requests.
+POST requests will be feeded with data.
+
+=item *
+
+Display of http request/response header.
+
+=item *
+
+Assertions for http responses: Some predicates and boolean operators (extendable).
+
+=item *
+
+Multiple requests out of a single one,
+eg. additionally request the images and frames (extendable).
+
+=item *
+
+Linkchecker included (a special module for <i>multiple request</i>).
+Predicates and boolean operators for the links to be followed.
+
+=item *
+
+Output listeners (extendable): HTML, Text, Test::Harness
+
+=item *
+
+Property file for the client configuration
+(proxy, basic authentification, http header, timeout, ...)
+
+=item *
+
+Cookie behaviour control (on, off, clear)
+
+=item *
+
+Including test plans: For better maintainability a plan can include any other plans.
+
+=item *
+
+Plans are parameter enabled (names).
+The names are set by the calling plan or the config file.
+
+=item *
+
+Single client instance emulating multiple users (deterministic access).
+
+=item *
+
+Multiple client instances for load test (unix like operating systems only).
+
+=item *
+
+Sending mail when the execution of the plan is terminated.
+
+=back
+
+
+=head1 BUGS
+
+Most bug descriptions are annotated at the desired place.
+However, there should really be more tests.
+
+
+=head1 SEE ALSO
+
+L<WWW::Webrobot::pod::Config.pod>
+
+L<WWW::Webrobot::pod::OutputListeners.pod>
+
+L<WWW::Webrobot::pod::Recur.pod>
+
+L<WWW::Webrobot::pod::Testplan.pod>
+
+=cut
