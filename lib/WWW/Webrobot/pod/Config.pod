@@ -53,8 +53,10 @@ WWW::Webrobot::pod::Config - How to configure Webrobot
  mail.Type=text/plain
  mail.Encoding=quoted-printable
  mail.Data=blabla\n\
- Das ist der Body הצü\n\
- der testmail\n
+ This is the body of the test mail\n\
+ umlauts are הצü\n
+ mail.Attach=|text/plain|filename.txt
+
 
 
 
@@ -258,6 +260,13 @@ Timeout in seconds when sending mail
         mail.timeout=60
 
 No attempt is made to resend the mail if sending mail fails.
+
+=item mail.Attach (@multivalue)
+
+Attach files to the mail, multiple attachments are ok.
+
+        mail.Attach=|text/plain|filename.txt
+        mail.Attach=|text/html|anotherfilename.html
 
 =item mail.*
 

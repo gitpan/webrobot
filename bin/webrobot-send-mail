@@ -1,0 +1,66 @@
+#!/usr/bin/perl -w
+use strict;
+use warnings;
+
+# Author: Stefan Trcek
+# Copyright(c) 2004 ABAS Software AG
+
+use CGI qw(:standard -no_xhtml);
+#use diagnostics
+
+use WWW::Webrobot;
+use WWW::Webrobot::SendMail;
+use WWW::Webrobot::CGIHelper;
+
+
+my $USAGE = <<EOF;
+USAGE: webrobot [options]
+-h              this message
+-v              version
+All other options are written 'option_name=value_of_option'.
+option           description
+------------------------------------------------------------------------
+cfg              test configuration [mandatory], must end in '.prop'
+EOF
+
+my ($p1, $other) = @ARGV;
+$p1 ||= "";
+do {print $USAGE; exit} if $p1 =~ /^-(-)?h(elp)?$/i;
+
+my $cgi = CGI -> new();
+my $cfg_name = $cgi->param('cfg') or die "No configuration file defined!";
+my $test_plan_name = $cgi->param('testplan');
+
+MAIN: {
+    my $cmd_param = WWW::Webrobot::CGIHelper::param2list($cgi, [qw(cfg testplan)]);
+    # conditionally send mail
+    my $webrobot = WWW::Webrobot -> new(\$cfg_name, $cmd_param);
+    $webrobot->cfg()->{mail}->{condition} = "ever";
+    WWW::Webrobot::SendMail::send_mail($webrobot->cfg()->{mail}, 1);
+}
+
+1;
+
+=head1 NAME
+
+webrobot-send-mail - send mail
+
+=head1 SYNOPSIS
+
+ webrobot-send-mail cfg=example/cfg.prop
+
+=head1 DESCRIPTION
+
+This command sends mail.
+It takes one mandatory parameter.
+
+=over
+
+=item cfg
+
+This is the configuration file,
+see L<WWW::Webrobot::pod::Config>.
+
+=back
+
+=cut

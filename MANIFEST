@@ -1,6 +1,7 @@
 bin/webrobot
 bin/webrobot-gen-plan
 bin/webrobot-load
+bin/webrobot-send-mail
 bin/xpath-shell
 Changes
 COPYRIGHT
@@ -39,6 +40,7 @@ lib/WWW/Webrobot/Print/Html.pm
 lib/WWW/Webrobot/Print/MakeTestplan.pm
 lib/WWW/Webrobot/Print/Null.pm
 lib/WWW/Webrobot/Print/Test.pm
+lib/WWW/Webrobot/Print/TestSimple.pm
 lib/WWW/Webrobot/Print/Text.pm
 lib/WWW/Webrobot/Properties.pm
 lib/WWW/Webrobot/Recur/Browser.pm
@@ -110,4 +112,3 @@ t/xhtml/chinese.html
 t/xhtml/isolatin-doctype.html
 t/xhtml/isolatin-simple.html
 t/xhtml/isolatin.html
-x

@@ -1,3 +1,10 @@
+0.62 2004-12-07
+        - Sending mail: there is now a separate program 'webrobot-send-mail'.
+          It uses the same config file.
+          Sending mail by program 'webrobot' is deprecated.
+        - New output class WWW::Webrobot::Print::TestSimple
+          Contrary to WWW::Webrobot::Print::Test it doesn't output form data.
+
 0.61 2004-12-02
         - Maintainance release to make it work on SunOS-5.7
           The output of HTML::TreeBuilder::as_XML is quite different on Sun,
