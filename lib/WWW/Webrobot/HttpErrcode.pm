@@ -32,7 +32,7 @@ It contains marks to simply navigate by the code number.
 
 =head1 SEE ALSO
 
-RFC 2616 L<http:E<sol>E<sol>www.faqs.orgE<sol>rfcsE<sol>rfc2616.html>
+RFC 2616 L<http://www.faqs.org/rfcs/rfc2616.html>
 
 =cut
 

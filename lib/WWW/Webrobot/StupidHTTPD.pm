@@ -55,7 +55,7 @@ sub new {
 
 Start a daemon.
 C<$func> is the servers job to do on any request,
-see L<t/get.t> for the syntax.
+see F<t/get.t> for the syntax.
 Parameters:
 
  timeout       The timout for the server

@@ -30,6 +30,35 @@ my $test_plan = <<'EOF';
                 </and>
             </WWW.Webrobot.Assert>
         </assert>
+        <description value="access the properties 'login' and 'password'"/>
+    </request>
+
+    <request>
+        <method value='GET'/>
+        <url value='${application}/url/${login}/${password}'/>
+        <assert>
+            <WWW.Webrobot.Assert>
+                <and>
+                    <status value='200'/>
+                    <regex value='${login}/${password}'/>
+                    <string value='${login}/${password}'/>
+                </and>
+            </WWW.Webrobot.Assert>
+        </assert>
+        <description value="access the properties 'login' and 'password' and expand in as many places as possible"/>
+    </request>
+
+    <request>
+        <method value='GET'/>
+        <url value='${application}/url/${login}/${password}'/>
+        <assert>
+            <WWW.Webrobot.Assert>
+                <and>
+                    <status value='200'/>
+                    <regex value='my_name/secret'/>
+                </and>
+            </WWW.Webrobot.Assert>
+        </assert>
         <description value="access the properties 'login' and 'password' and define a property"/>
         <property name='constant' value='a_new_value'/>
     </request>

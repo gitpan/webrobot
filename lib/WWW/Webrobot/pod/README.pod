@@ -51,7 +51,7 @@ You run L<webrobot> with your test plan and configuration file.
 
 =item *
 
-You inspect the output in text or html form depending on the output filters in use.
+You inspect the output in text or html form depending on the output listeners in use.
 See L<WWW::Webrobot::pod::OutputListeners>.
 
 
@@ -126,20 +126,35 @@ Sending mail when the execution of the plan is terminated.
 =head1 BUGS
 
 Most bug descriptions are annotated at the desired place.
-However, there should really be more tests.
 
+
+=head1 DEVELOPMENT STAGE
+
+The software runs pretty stable and is in use for quality assurance.
+
+Some interfaces or formats have recently changed and may change in the future.
+I try to avoid incompatible changes or at least I'll document incompatibilities.
+See the I<Changes> file in the distribution.
 
 =head1 SEE ALSO
 
 =over
 
+=item L<http://webrobot.abas.de>
+
+The Webrobot support page.
+It contains screenshots, tutorials, documentation and downloads.
+
+
 =item L<WWW::Webrobot::pod::Config>
 
 How do you configure Webrobot? It is similar to any web browser.
+An example is in the distribution F<t/example/cfg.prop>.
 
 =item L<WWW::Webrobot::pod::Testplan>
 
 What is the format of a test plan?
+An example is in the distribution F<t/example/testplan.xml>.
 
 =item L<WWW::Webrobot::pod::OutputListeners>
 
@@ -150,6 +165,8 @@ You may use one of the delivered packages or write your own (very simple).
 
 How can you make multiple requests out of one?
 You may use one of the delivered packages or write your own (not that simple).
+An example how to use the linkchecker module
+is in the distribution F<t/example/linkchecker.xml>.
 
 =back
 

@@ -62,7 +62,7 @@ if this url is allowed and B<0> if it is not allowed.
 If you wonder why this method is needed - here is an explanation:
 Returning allowed URLs by C<next> is not sufficient
 because URLs may be redirected via 3xx codes.
-This redirection is done automatically by L<WWW.Webrobot>
+This redirection is done automatically by L<WWW::Webrobot>
 via L<HTTP::UserAgent> and must therefore be savely excluded in
 L<HTTP::UserAgent>.
 That's where the C<allowed> method is used.

@@ -228,6 +228,11 @@ my %ACTION = (
         $arg->{assert} = new WWW::Webrobot::AssertConstant($err, $err ? "0 $err" : undef);
         return undef;
     },
+    SLEEP => sub {
+        my ($uac, $arg, $sym_tbl) = @_;
+        sleep($arg->{url});
+        return undef;
+    },
 );
 
 sub check_assertion {

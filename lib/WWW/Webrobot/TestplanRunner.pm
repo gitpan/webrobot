@@ -72,11 +72,11 @@ sub run {
     $_ -> global_start() foreach (@$out);
     my $exit_status = 0;
     foreach my $entry (@$testplan) {
+        $sym_tbl -> evaluate($entry);
         $entry->{assert}  = get_plugin($entry->{assert_xml})
             if defined $entry->{assert_xml};
         $entry->{recurse} = get_plugin($entry->{recurse_xml})
             if defined $entry->{recurse_xml};
-        $sym_tbl -> evaluate($entry);
 
         my $user = $self -> _get_ua_connection($cfg, $entry -> {useragent});
 

@@ -6,7 +6,7 @@ WWW::Webrobot::pod::Config - How to configure Webrobot
 
  names=server=google.de
  names=port=4321
- names=application=http://google:4321/troja
+ names=application=http://${server}:${port}/app
 
  # alternate forms
  auth_basic=,site-authentification,mylogin,secretpassword
@@ -26,7 +26,7 @@ WWW::Webrobot::pod::Config - How to configure Webrobot
  referrer_bug=1
 
  http_header=Accept-Language=de
- http_header=new-header-element=irgendwas
+ http_header=new-header-element=something else
 
  proxy=http=http://httpproxy.server.org:8888
  proxy=https=http://httpproxy.server.org:8888
@@ -110,7 +110,7 @@ Non-listmode C<property_name>s should be defined only once.
 =item names (@key-value)
 
 The C<key> defines a name, the C<value> its value.
-The key can be used within a testplan as C<{key}>
+The key can be used within a testplan as C<${key}>
 and will be substituted as C<value>.
 
 Names can be used immediately in the C<names> section.

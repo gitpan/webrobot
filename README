@@ -31,28 +31,22 @@ For Installation and prerequisites see file INSTALL.
 Support
 =======
 
-This software is considered alpha because
-
-* Some interfaces may change.
-* There are not enough tests that assure functionality.
+This software is considered alpha because some interfaces may change.
 
 Though - there seem to be no major stability problems.  I tested it on
 Linux (perl 5.6.1 and 5.8.0) and Windows 2000 (perl 5.8.0 with LWP
 patch).
 
-For bugs and questions please
-    mailto:webrobot@abas.de
-as long as the mailing list isn't alive.
+For bugs and questions please mailto:webrobot@abas.de
 
 For further information visit http://webrobot.abas.de. This site contains
 
 * screenshots
 * tutorials
-* perl for Windows with all necessary modules included
+* A compiled Perl for Windows with all necessary modules included
 * the mailing list
 
-If you want to contribute to this project please
-    mailto:webrobot@abas.de
+If you want to contribute to this project please mailto:webrobot@abas.de
 
 
 LICENSE
@@ -62,4 +56,4 @@ AUTHOR: Stefan Trcek
 
 COPYRIGHT: Copyright(c) 2004 ABAS Software AG
 
-LICENSE: This software is licensed under the perl license, see LICENSE file.
+LICENSE: This software is licensed under the Perl license, see LICENSE file.

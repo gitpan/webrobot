@@ -5,7 +5,7 @@ use warnings;
 # Author: Stefan Trcek
 # Copyright(c) 2004 ABAS Software AG
 
-*VERSION = \'0.50';
+*VERSION = \'0.51';
 
 use Carp;
 use WWW::Webrobot::Properties;
@@ -240,6 +240,10 @@ sub xml2planlist {
                 for (@commands) {
                     push @$plan, {method=>"CONFIG", _mode=>$_, url=>$content->[0]->{$_} || ""};
                 }
+                last;
+            };
+            /^sleep$/ and do {
+                push @$plan, {method=>"SLEEP", url => $content->[0]->{value} || 1};
                 last;
             };
             assert(0, "found <$tag>, expected <plan>, <request>, <include>, <cookies>, <referrer>, <config>");

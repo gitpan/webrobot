@@ -69,6 +69,7 @@ t/plan/shuffle.xml
 t/post.t
 t/properties.t
 t/properties/runtime-config.pl
+t/sleep.t
 t/statistic.t
 t/tree2postfix.t
 t/var_expand.t

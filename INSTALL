@@ -10,11 +10,13 @@ Requirements
 
 - Expat http://www.jclark.com/xml/expat.html and http://expat.sourceforge.net/
   You need to install expat *before* you install this module because
-  XML::Parser requires OpenSSL.
+  XML::Parser requires Expat.
 
 - [optional] If you wish https support you must install OpenSSL
   http://www.openssl.org/ and Crypt::SSLeay
-  You may install it later.
+  You may install it later. Follow the installation instructions in
+  Crypt::SSLeay if your OS comes with OpenSSL installed, but you encounter
+  problems (that is, install it again in in the preferred location).
 
 - [optional] If you wish to send e-mail install MIME::Lite.
 
@@ -36,13 +38,12 @@ required modules):
     make test
     make install
 
-If you are on a windows box you should use 'nmake' rather than 'make'.
 
 
 Installation on Windows
 =======================
 
-[TBD]
+If you are on a windows box you probably should use 'nmake' rather than 'make'.
 
 
 LICENSE
@@ -52,4 +53,4 @@ AUTHOR: Stefan Trcek
 
 COPYRIGHT: Copyright(c) 2004 ABAS Software AG
 
-LICENSE: This software is licensed under the perl license, see LICENSE file.
+LICENSE: This software is licensed under the Perl license, see LICENSE file.

@@ -230,7 +230,7 @@ WWW::Webrobot::Properties - Implements a config format like java.util.Properties
 
 This class implements a config format like java.util.Properties,
 see
-L<http:E<sol>E<sol>java.sun.comE<sol>j2seE<sol>1.3E<sol>docsE<sol>apiE<sol>javaE<sol>utilE<sol>Properties.html>
+L<http://java.sun.com/j2se/1.3/docs/api/java/util/Properties.html>
 for more docs.
 
 B<Note:>
@@ -313,7 +313,7 @@ yields in the internal config format
 =back
 
 For a complete guide of the semantics of the options
-see the tests L<t/properties.t>.
+see the tests F<t/properties.t>.
 
 =back
 

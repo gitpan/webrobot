@@ -13,7 +13,7 @@ WWW::Webrobot::pod::Testplan - How to write a test plan for L<webrobot>
     </request>
 
     <include file='a-file-name'>
-        <parm name='application' value='{application}'/>
+        <parm name='application' value='${application}'/>
         <parm name='username' value='koester'/>
     </include>
 
@@ -100,15 +100,14 @@ Attributes:
 
 <include> tags may define names local to the file included.
 This is a way to parameterise a files content.
-See section L<Names>.
+See section L<Names (Variables)>.
 
 Example:
 
         <include file='a file name'>
-            <parm name='application' value='{application}'/>
-            <parm name='username' value='koester'/>
-            <parm name='password' value='xxx'/>
-            <parm name='useragent' value='koester'/>
+            <parm name='application' value='${application}'/>
+            <parm name='username' value='mary'/>
+            <parm name='useragent' value='marysagent'/>
         </include>
 
 =head1 Tag <cookies>
@@ -205,7 +204,7 @@ For web forms you need to transmit the form data.
 This is done with the data tag:
 
         <data>
-            <parm name='login' value='yourself'/>
+            <parm name='login' value='mary'/>
             <parm name='password' value='secret'/>
         </data>
 
@@ -336,11 +335,11 @@ B<Example:>
                 <and>
                     <status value='2'/>
                     <or>
-                        <regex value='Login'/>
-                        <regex value='Logout'/>
+                        <string value='Login'/>
+                        <regex value='Log(out|off)'/>
                     </or>
                     <not>
-                        <regex value='Logout'/>
+                        <string value='Error'/>
                     </not>
                     <xpath xpath='//title/text()' value='Welcome'/>
                     <timeout value='2.7'/>
@@ -538,6 +537,7 @@ for the HTTP response protocol (usually 'HTTP/1.0' or 'HTTP/1.1').
 
 
 I<Example:>
+
         <property name='a_name' value='a_value'/>
         <property name='a_name' regex='any(value)matched'/>
         <property name='a_name' xpath='//title/text()'/>
@@ -552,7 +552,8 @@ I<Example:>
 If you defined names in a corresponding config file,
 see L<WWW::Webrobot::pod::Config>.
 You can use a name in your test plan
-by including it in curly braces like C<{myhost}>.
+by using the perl like syntax C<${myhost}>.
+Though - this is no perl variable, it just looks like one.
 Example:
 
 In a C<config.prop> file define
@@ -569,7 +570,7 @@ In your C<testplan.xml> plan use
 
     <request>
         <method value='GET'/>
-        <url value='http://{host}:{port}/'/>
+        <url value='http://${host}:${port}/'/>
     </request>
 
 
@@ -580,6 +581,7 @@ In your C<testplan.xml> plan use
 =item _id
 
 This name is "1" if used with webrobot.
+
 It takes a value out of [1, 2, ... load.number_of_clients] if used with webrobot-load.
 It is a unique id for any child process.
 
@@ -598,8 +600,9 @@ see the L<config> tag.
 
 The internal representation of XML is utf-8 and
 independent of your XML's charset.
-Some strings are converted to iso-latin,
-so you might encounter problems if you rely on anything else but iso-latin.
+Some strings are internally converted to iso-latin (for output only),
+so you might encounter problems in the output
+if you rely on anything else but iso-latin.
 
 =back
 
@@ -644,14 +647,17 @@ http://www.faqs.org/rfcs/rfc2818.html
 HTTPS
 
 =item RFC 2617
+
 L<http://www.faqs.org/rfcs/rfc2617.html>:
 HTTP Authentication: Basic and Digest Access Authentication
 
 =item RFC 2109
+
 L<http://www.faqs.org/rfcs/rfc2109.html>
 Cookies: HTTP State Management Mechanism
 
 =item RFC 1521
+
 L<http://www.faqs.org/rfcs/rfc1521.html>
 MIME
 
@@ -673,21 +679,26 @@ L<http://www.ibiblio.org/mdma-release/http-prob.html>:
 Analysis of HTTP Performance problems
 
 =item *
+
 L<http://www.jmarshall.com/easy/http/>:
 HTTP Made Really Easy
 
 =item *
+
 L<http://www.rad.co.il/networks/1999/http/index.htm>:
 The Hypertext Transfer Protocol (HTTP/1.1)
 
 =item *
+
 L<http://www.netscape.com/newsref/std/cookie_spec.html>: Netscape Cookies
 
 =item *
+
 L<http://www.cookiecentral.com/faq/>:
 The Unofficial Cookie FAQ
 
 =item *
+
 L<http://www.isi.edu/in-notes/iana/assignments/media-types/media-types>:
 Media Types
 
