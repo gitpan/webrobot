@@ -7,7 +7,7 @@ use strict;
 use Getopt::Long;
 use CGI;
 
-my $USAGE = <<EOF;
+my $USAGE = <<'EOF';
 USAGE: webrobot-gen-plan [options] [files]
 Options:
 -help               give help
@@ -18,8 +18,7 @@ Options:
         text        output in simple text format (filter)
 EOF
 
-my $USAGE_EXTENDED = <<EOF;
-$USAGE
+my $USAGE_EXTENDED = $USAGE . <<'EOF';
 
 Converts line based testplans to xml testplans.
 
@@ -44,6 +43,7 @@ regular_expression:
 >>> Examples (usage)
         find . | webrobot-gen-plan -prefix='http://www/'
 EOF
+
 my $prefix;
 my @encode = ();
 my $output = "xml";
@@ -99,14 +99,14 @@ MAIN: {
             if ($data) {
                 my @list = cgi_parse($data);
                 my $parameter = join "",
-                    map {"    <parm name='$_->[0]' value='$_->[1]'/>\n"}
+                    map {qq{    <parm name="$_->[0]" value="$_->[1]"/>\n}}
                         map {[ html_encode($_->[0]), html_encode($_->[1]) ]}
                             @list;
                 $xml .= "<data>\n$parameter</data>\n";
             }
             if ($assert && @$assert) {
-                $xml .= "<assert>\n<WWW.Webrobot.Assert>\n<and>\n<status value='2'/>\n";
-                $xml .= join "", map {"<regex value='$_'/>\n"} @$assert;
+                $xml .= qq{<assert>\n<WWW.Webrobot.Assert>\n<and>\n<status value="2"/>\n};
+                $xml .= join "", map {qq{<regex value="$_"/>\n}} @$assert;
                 $xml .= "</and>\n</WWW.Webrobot.Assert>\n</assert>\n";
             }
             $url = html_encode($url) if $output eq "xml";
@@ -114,9 +114,9 @@ MAIN: {
             print <<EOF;
 <request>
     <!-- $comment_url -->
-    <method value='$method'/>
-    <url value='$url'/>
-    <description value='$i'/>
+    <method value="$method"/>
+    <url value="$url"/>
+    <description value="$i"/>
 $xml\
 </request>
 EOF
@@ -156,6 +156,9 @@ sub cgi_parse {
 sub html_encode {
     my ($parm) = @_;
     $parm =~ s/&/&amp;/g;
+    $parm =~ s/</&lt;/g;
+    $parm =~ s/"/&quot;/g;
+    #$parm =~ s/\'/&#39;/g;
     return $parm;
 }
 

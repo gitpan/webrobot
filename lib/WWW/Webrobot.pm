@@ -5,7 +5,7 @@ use warnings;
 # Author: Stefan Trcek
 # Copyright(c) 2004 ABAS Software AG
 
-*VERSION = \'0.51';
+*VERSION = \'0.60';
 
 use Carp;
 use WWW::Webrobot::Properties;
@@ -14,6 +14,7 @@ use WWW::Webrobot::XML2Tree;
 use WWW::Webrobot::TestplanRunner;
 use WWW::Webrobot::Global;
 use WWW::Webrobot::AssertDefault;
+use WWW::Webrobot::XHtml;
 
 
 my %arg_default = (
@@ -52,9 +53,17 @@ Runs a testplan according to a configuration.
 Construct an object.
 
  $cfg_name
-     Name of the config file
+     SCLAR: config string
+     REF  : Name of the config file
  $cmd_param
      ??? to be documented
+
+Example:
+ $wr = WWW::Webrobot->new(\"configfile.cfg");
+ $wr = WWW::Webrobot->new(<<EOF);
+ names=first=value
+ names=second=another value
+ EOF
 
 =cut
 
@@ -102,6 +111,20 @@ sub cfg {
 =item $test_plan
 
 Read in the testplan from a file $test_plan and run it.
+If $test_plan is SCALAR it is taken as a string,
+if $test_plan is a reference it is taken as a file name.
+
+Example:
+ $wr->run(\"xml_file.xml");
+ $wr->run(<<EOF);
+ <?xml version="1.0" encoding="iso-8859-1"?>
+ <plan>
+     <request>
+         <method value='POST'/>
+         <url value='${application}/content'/>
+     </request>
+ </plan>
+ EOF
 
 =back
 
@@ -246,7 +269,7 @@ sub xml2planlist {
                 push @$plan, {method=>"SLEEP", url => $content->[0]->{value} || 1};
                 last;
             };
-            assert(0, "found <$tag>, expected <plan>, <request>, <include>, <cookies>, <referrer>, <config>");
+            assert(0, "found <$tag>, expected <plan>, <request>, <include>, <cookies>, <referrer>, <config>, <sleep>");
         }
     }
     return $plan;
@@ -296,7 +319,7 @@ sub xml2entry {
                 last;
             };
             /^property$/ and do {
-                foreach (qw/value regex xpath header/) {
+                foreach (qw/value regex xpath header status random/) {
                     if ($attr->{$_}) {
                         push @{$entry{property}}, [$_, $attr->{name}, $attr->{$_}];
                         last;
@@ -368,9 +391,9 @@ sub read_configuration {
 
     # read config file in 'properties' format
     my $config = WWW::Webrobot::Properties->new(
-        listmode    => [qw(names auth_basic output http_header proxy no_proxy)],
+        listmode    => [qw(names auth_basic output http_header proxy no_proxy mail.Attach)],
         key_value   => [qw(names http_header proxy)],
-        multi_value => [qw(auth_basic)],
+        multi_value => [qw(auth_basic mail.Attach)],
         structurize => [qw(load mail)],
     );
     my $cfg = $config->load($cfg_name, $cmd_param);

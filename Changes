@@ -1,3 +1,37 @@
+0.60 2004-11-29
+        NOTE: This version requires Perl 5.8.0 or later due to 'Encode'.
+        This was necessary for Unicode and MIME support.
+        See INSTALL.PERL-561 how to use it on Perl 5.6.1 (not recommended).
+
+        Unicode and MIME types: this should now work correctly,
+        tests are t/encode*.t, currently for iso-latin1 and utf-8.
+        TESTS FOR OTHER LANGUAGES/MIME-TYPES ARE HIGHLY WELCOME.
+        - HTTP response data are interpreted according its MIME type.
+        - FIXED: testplan input (XML file) is now true utf-8
+        - Parser HTML to XML: support for MIME types and utf-8
+
+        Properties/variables
+        - New properties from HTTP status line
+        - Property assigned with random number
+        - Display assigned properties in HTML and text output
+
+        WWW::Webrobot::Print::Html
+        - Display runtime-assigned properties
+        - display of non-HTTP actions (e.g. SLEEP, COOKIES) improved
+
+        WWW::Webrobot::Print::Test
+        - More (better) output in case of 'Not ok'
+        - Nicer output: Multibyte characters display \x{....}
+
+        Others
+        - Many new installation tests
+        - Version info for 'webrobot' and 'webrobot-load', '-v'
+        - Sending Mail: Attachments supported: You may redirect output to
+          a file and mail this file.
+        - FIXED: XML encoding (&entity;) in 'webrobot-gen-plan' produced
+          invalid testplans.
+        - FIXED: Some minor bugs, mostly display of text.
+
 0.51 2004-09-29
         - Sleep tag in test plans: <sleep value="5"/>
         - Dynamic properties are now also evaluated in assertions.

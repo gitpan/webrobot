@@ -14,18 +14,22 @@ use WWW::Webrobot::CGIHelper;
 
 my $USAGE = <<EOF;
 USAGE: webrobot-load [options]
-Options are written 'option_name=value_of_option'
-
+-h              this message
+-v              version
+All other options are written 'option_name=value_of_option'.
 option           description
 ------------------------------------------------------------------------
 cfg              test configuration [mandatory], must end in '.prop'
 testplan         overwrite 'testplan' in cfg
 <property>       set property
 
-BUG: This script will work on unixoid systems only.
+BUG: This program will probably work on unixoid systems only.
 EOF
 
-do {print $USAGE; exit} if ($ARGV[0] || "") =~ /^-(-)?h(elp)?$/i;
+my ($p1, $other) = @ARGV;
+$p1 ||= "";
+do {print $USAGE; exit} if $p1 =~ /^-(-)?h(elp)?$/i;
+do {print "Webrobot version: $WWW::Webrobot::VERSION\n"; exit} if $p1 =~ /^-(-)?v(ersion)?$/i;
 
 my $cgi = CGI -> new();
 my $cfg_name = $cgi->param('cfg') or die "No configuration file defined!";

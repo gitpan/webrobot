@@ -23,16 +23,24 @@ sub send_mail {
         my $msg_to = $msg->get("to");
         my $msg_cc = $msg->get("cc");
         my $msg_bcc = $msg->get("bcc");
-        print "Sending mail",
-            $msg_to  ? " to: $msg_to" : "",
-            $msg_cc  ? " cc: $msg_cc" : "",
-            $msg_bcc ? " bcc: $msg_bcc" : "", "\n";
-        #print "ELEM: $_=$parm{$_}\n" foreach (keys %parm);
+        foreach (@{$mail->{Attach}}) {
+            my ($mime, $filename) = @$_;
+            $mime ||= "application/octet-stream";
+            $msg->attach(Type=>$mime, Path=>$filename);
+        }
         MIME::Lite -> send('smtp', $server, Timeout=>$timeout);
-        eval {
-            $msg -> send();
-        };
-        $@ ? return $@ : return 0;
+        eval { $msg -> send() };
+        if ($@) {
+            print STDERR "Can't send mail: $@";
+            return $@;
+        }
+        else {
+            print STDERR "Sending mail",
+                $msg_to  ? " to: $msg_to" : "",
+                $msg_cc  ? " cc: $msg_cc" : "",
+                $msg_bcc ? " bcc: $msg_bcc" : "", "\n";
+            return 0;
+        }
     }
     else {
         return 0;

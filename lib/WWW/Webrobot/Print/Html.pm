@@ -239,7 +239,7 @@ EOF
     my $PLANDATA = open_die(">$dir/plan_data.html");
 
     # print navigation bar
-    my $fail_str = fail2str([qw(Ok FAILED INVALID)], $arg->{fail}, ["b"]);
+    my $fail_str = fail2str([qw(Ok FAILED INVALID)], "[no assertion]", $arg->{fail}, ["b"]);
     my $count0 = ($index > 0) ? $index - 1 : 0;
     my $count1 = $index + 1;
     my $url = $arg->{url} || "";
@@ -609,7 +609,7 @@ sub pr_index_item {
     # append new entry to frame 1
     my $points = $arg->{is_recursive} ? "...$SP" : "";
     my $link = "<a href='$index/index.html' target='planentry'>$index</a>";
-    my $ok = fail2str(["O", "F", "I"], $arg->{fail}, ["b", "tt"]);
+    my $ok = fail2str(["O", "F", "I"], "-", $arg->{fail}, ["b", "tt"]);
 
     my $long_text = "";
     $long_text = do {
@@ -623,9 +623,9 @@ sub pr_index_item {
 
 
 sub fail2str {
-    my ($array, $err_code, $type) = @_;
+    my ($array, $default, $err_code, $type) = @_;
     my $colour = $err_code ? "red" : "green";
-    my $text = defined $err_code ? $array->[$err_code] || "" : "";
+    my $text = (defined $err_code) ? ($array->[$err_code] || "") : ($default || "");
     if ($text) {
         $text = "<$_>$text</$_>" foreach (@$type);
         $text = "<font color='$colour'>$text</font>";

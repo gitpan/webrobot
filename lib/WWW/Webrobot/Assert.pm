@@ -25,12 +25,12 @@ my $predicate = {
     string => sub {
         my ($r, $tree) = @_;
         my $pattern = quotemeta($tree->{value});
-        return $r->content =~ m/$pattern/ ? 1 : 0;
+        return $r->content_encoded =~ m/$pattern/ ? 1 : 0;
     },
     regex => sub {
         my ($r, $tree) = @_;
         my $pattern = $tree->{value};
-        return $r->content =~ m/$pattern/ ? 1 : 0;
+        return $r->content_encoded =~ m/$pattern/ ? 1 : 0;
     },
     xpath => sub {
         my ($r, $tree) = @_;

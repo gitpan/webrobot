@@ -55,14 +55,16 @@ sub extract {
     my $node = eval {
         $self -> {_xpath} -> find($expr);
     };
-    die "ERROR in XPath expression='$expr': $@" if $@;
-    #print "REF: ", ref($node), "\n";
+    return undef if $@;
+
+    my $ret = "";
     if ($node -> isa("XML::XPath::NodeSet")) {
-        return join "\n", map { XML::XPath::XMLParser::as_string($_) } $node -> get_nodelist();
+        $ret = join "\n", map { XML::XPath::XMLParser::as_string($_) } $node -> get_nodelist();
     }
     else {
-        return $node -> value();
+        $ret = $node -> value();
     }
+    return $ret;
 }
 
 =back

@@ -9,7 +9,8 @@ use ExtUtils::MakeMaker;
 
 
 BEGIN {
-    require 5.006_001;
+    require 5.008_000;
+    #require 5.006_001;
 }
 
 WriteMakefile(
@@ -30,6 +31,9 @@ WriteMakefile(
                          # enum
                      'Time::HiRes' => 0,
                      'Unicode::Lite' => 0,
+
+                     # Encode requires Perl 5.7.3, necessary for Unicode Support
+                     # 'Encode' => 0,
 
                      # OPTIONAL 'MIME::Lite' => 0,
                      # OPTIONAL 'Crypt::SSLeay' => 0,

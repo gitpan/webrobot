@@ -9,6 +9,27 @@ use warnings;
 use Carp;
 
 
+=head1 NAME
+
+WWW::Webrobot::SymbolTable - Symbol table for Webrobot properties
+
+=head1 SYNOPSIS
+
+ use WWW::Webrobot::SymbolTable;
+ my $symbols = WWW::Webrobot::SymbolTable -> new();
+
+=head1 DESCRIPTION
+
+=head1 METHODS
+
+=over
+
+=item new
+
+Constructor
+
+=cut
+
 sub new {
     my $class = shift;
     my $self = bless({}, ref($class) || $class);
@@ -17,10 +38,22 @@ sub new {
     return $self;
 }
 
+=item $symbols->push_scope()
+
+Open a new scope for symbols.
+
+=cut
+
 sub push_scope {
     my ($self) = @_;
     push @{$self->{_scope}}, {};
 }
+
+=item $symbols->pop_scope()
+
+Close (delete) the last scope, delete all symbols in this scope.
+
+=cut
 
 sub pop_scope {
     my ($self) = @_;
@@ -33,6 +66,12 @@ sub pop_scope {
     }
     pop @$scope;
 }
+
+=item $symbols->define_symbol($name, $value)
+
+Define a symbol in the current scope.
+
+=cut
 
 sub define_symbol {
     my ($self, $l, $r) = @_;
@@ -58,6 +97,14 @@ sub _evaluate_string {
     $str =~ s/ \${ ([^}]+) } / $symbols->{$1} ? $symbols->{$1}->[-1] : "\${$1}" /gex;
     return $str;
 }
+
+=item $symbols->evaluate($string)
+
+Evaluate all symbols in a string.
+The symbol variables must obey the syntax C<${name}>.
+Returns the evaluated string.
+
+=cut
 
 sub evaluate {
     my ($self, $entry) = @_;
@@ -104,5 +151,9 @@ sub evaluate {
     return $entry;
 }
 
+
+=back
+
+=cut
 
 1;

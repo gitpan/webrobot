@@ -34,8 +34,7 @@ Support
 This software is considered alpha because some interfaces may change.
 
 Though - there seem to be no major stability problems.  I tested it on
-Linux (perl 5.6.1 and 5.8.0) and Windows 2000 (perl 5.8.0 with LWP
-patch).
+Linux (5.8.0) and Windows 2000 (perl 5.8.0 with LWP patch).
 
 For bugs and questions please mailto:webrobot@abas.de
 
@@ -44,7 +43,6 @@ For further information visit http://webrobot.abas.de. This site contains
 * screenshots
 * tutorials
 * A compiled Perl for Windows with all necessary modules included
-* the mailing list
 
 If you want to contribute to this project please mailto:webrobot@abas.de
 

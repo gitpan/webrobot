@@ -5,7 +5,6 @@ use warnings;
 # Author: Stefan Trcek
 # Copyright(c) 2004 ABAS Software AG
 
-
 use Carp;
 
 {
@@ -30,3 +29,9 @@ use Carp;
 }
 
 1;
+
+=head1 NAME
+
+WWW::Webrobot::Global - Some global functions (internal)
+
+=cut

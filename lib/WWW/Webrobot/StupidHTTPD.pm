@@ -10,7 +10,6 @@ use LWP::UserAgent;
 
 WWW::Webrobot::StupidHTTPD - A simple HTTP daemon for tests
 
-
 =head1 SYNOPSIS
 
  # create and start the daemon
@@ -59,7 +58,7 @@ see F<t/get.t> for the syntax.
 Parameters:
 
  timeout       The timout for the server
- ford_daemon   Require the daemon to be forked:
+ fork_daemon   Require the daemon to be forked:
                forked:     work as client (server is forked off)
                non-forked: work as server
 

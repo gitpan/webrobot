@@ -10,10 +10,11 @@ use HTTP::Cookies;
 use HTTP::Request::Common;
 use Time::HiRes;
 
-use WWW::Webrobot::Attributes qw(ua cfg);
+use WWW::Webrobot::Attributes qw(ua cfg encoding);
 use WWW::Webrobot::MyUserAgent;
 use WWW::Webrobot::Ext::General::HTTP::Response;
 use WWW::Webrobot::AssertConstant;
+use WWW::Webrobot::MyEncode qw/has_Encode legacy_mode octet_to_encoding/;
 
 
 =head1 NAME
@@ -124,6 +125,26 @@ sub norm_response {
     return $r;
 }
 
+
+sub convert_data {
+    my ($uac, $input_data) = @_;
+    my $encoding = $uac->encoding;
+    return $input_data if !$encoding;
+    if (has_Encode || legacy_mode) {
+        my %data = ();
+        foreach (keys %$input_data) {
+            $data{octet_to_encoding($encoding, $_)} =
+                octet_to_encoding($encoding, $input_data->{$_});
+        }
+        return \%data;
+    }
+    else {
+        return $input_data;
+    }
+}
+
+my %HTTP_ACTION = map {$_=>1} qw/HEAD GET POST PUT DELETE TRACE/;
+
 my %ACTION = (
     NOP => sub {
         return undef;
@@ -136,7 +157,7 @@ my %ACTION = (
     GET => sub {
         my ($uac, $arg, $sym_tbl) = @_;
         my %header = %{$uac->cfg->{http_header}};
-        my $data = $arg->{data};
+        my $data = convert_data($uac, $arg->{data});
         my $url = $arg->{url};
         if ($data && scalar keys %$data) {
             my $tmp_request = POST($arg->{url}, $arg->{data}, %header);
@@ -148,7 +169,8 @@ my %ACTION = (
     POST => sub {
         my ($uac, $arg, $sym_tbl) = @_;
         my %header = %{$uac->cfg->{http_header}};
-        return norm_response($uac -> ua -> request($uac->norm_request(POST($arg->{url}, $arg->{data}, %header))));
+        my $data = convert_data($uac, $arg->{data});
+        return norm_response($uac -> ua -> request($uac->norm_request(POST($arg->{url}, $data, %header))));
     },
     PUT => sub {
         my ($uac, $arg, $sym_tbl) = @_;
@@ -213,7 +235,7 @@ my %ACTION = (
                     }
                     my $new_variables = WWW::Webrobot::Properties -> new() -> load_handle($handle) or
                         die "Can't read data from external program '$arg->{url}'";
-                    my @new_vars = map { [$_, $new_variables->{$_}] } sort keys %$new_variables;
+                    my @new_vars = map { [$_, $new_variables->{$_} || ""] } sort keys %$new_variables;
                     $arg->{new_properties} = \@new_vars;
                     foreach (keys %$new_variables) {
                         $sym_tbl->define_symbol($_, $new_variables->{$_});
@@ -289,45 +311,69 @@ sub treat_single_url {
         ($fail, $fail_str) = check_assertion($r, $arg->{assert});
     }
 
-    if (!$fail && $arg->{property}) {
+    # set encoding of response
+    my $coding = undef;
+    if ($HTTP_ACTION{$arg->{method}}) {
+        if ($r and my $ct = $r->headers->{'content-type'}) {
+            #'content-type' => 'text/plain; charset=utf-8',
+            $coding = $1 if ($ct =~ m/.*;\s*charset\s*=\s*(.*)$/);
+        }
+    }
+    $self->encoding($coding);
+
+    #if (!$fail && $arg->{property}) {
+    if ($arg->{property}) {
         # evaluate new names
+        my @new_vars = ();
         foreach (@{$arg->{property}}) {
             my ($mode, $name, $expr) = @$_;
             SWITCH: foreach ($mode) {
                 /^value$/ and do {
-                    $sym_tbl -> define_symbol($name, $expr);
+                    push @new_vars, [$name, $expr];
                     last;
                 };
                 /^regex$/ and do {
                     next if ! $r;
                     my ($value) = $r->content =~ m/$expr/;
-                    $sym_tbl -> define_symbol($name, $value);
+                    push @new_vars, [$name, $value];
                     last;
                 };
                 /^xpath$/ and do {
                     next if ! $r;
-                    $sym_tbl -> define_symbol($name, $r->xpath($expr));
+                    push @new_vars, [$name, $r->xpath($expr)];
                     last;
                 };
                 /^header$/ and do {
                     next if ! $r;
-                    $sym_tbl -> define_symbol($name, $r->header($expr));
+                    push @new_vars, [$name, $r->header($expr)];
                     last;
                 };
                 /^status$/ and do {
                     next if ! $r;
-                    my @val = (qw/code protocol message/);
-                    #my %val_hash; @val_hash{@val} = (1)x@val;
-                    my %val_hash = map {$_=>1} @val;
-                    die("found status=$expr, expected " . join(", ", map {"'$_'"} @val))
-                        if ! $val_hash{$expr};
-                    $sym_tbl -> define_symbol($name, $r->header($expr));
+                    my %val = (
+                        code => sub {$_[0]->code},
+                        message => sub {$_[0]->message},
+                        protocol => sub {$_[0]->protocol},
+                    );
+                    die("found status='$expr', expected " . join(", ", map {"'$_'"} keys %val)) if ! $val{$expr};
+                    push @new_vars, [$name, $val{$expr}->($r)];
                     last;
                 };
-                die "found attribute '$_', expected 'value', 'regex', 'xpath', 'header', 'status'";
+                /^random$/ and do {
+                    next if ! $r;
+                    $expr = 0 if $expr < 0;
+                    $expr = 15 if $expr > 15;
+                    push @new_vars, [$name, int rand 10**$expr];
+                    last;
+                };
+                die "found attribute '$_', expected 'value', 'regex', 'xpath', 'header', 'status', 'random'";
             }
         }
-        #use Data::Dumper; print STDERR Dumper $arg->{property};
+        foreach (@new_vars) {
+            $_->[1] ||= "";
+            $sym_tbl -> define_symbol($_->[0], $_->[1]);
+        }
+        $arg->{new_properties} = \@new_vars;
     }
 
     return ($r, $fail, $fail_str);

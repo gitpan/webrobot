@@ -374,7 +374,7 @@ Otherwise apply (2) with the value returned by C<next>.
 
 =back
 
-For more information see L<WWW::Webrobot::pod::Recur.pod>.
+For more information see L<WWW::Webrobot::pod::Recur>.
 
 The dependant requests (i.e. which do not appear in the testplan,
 but come into play by the C<recurse> tag)
@@ -514,7 +514,7 @@ This attribute extract the designated HTTP response header value.
 
 =item status
 
-This attribute is applied to the status line.
+This attribute is applied to the HTTP response status line.
 Possible values are
 
 =over
@@ -533,16 +533,23 @@ for the HTTP response protocol (usually 'HTTP/1.0' or 'HTTP/1.1').
 
 =back
 
+=item random
+
+This attribute yields a random number with the number of digits
+designated by its value.  C<rand='5'> gives a 5 digit random number.
+The maximum number of digits is limited to 15.
+
 =back
 
 
-I<Example:>
+I<Examples:>
 
         <property name='a_name' value='a_value'/>
         <property name='a_name' regex='any(value)matched'/>
         <property name='a_name' xpath='//title/text()'/>
         <property name='a_name' header='Content-type'/>
         <property name='a_name' status='code'/>
+        <property name='a_name' random='5'/>
 
 
 

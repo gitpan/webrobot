@@ -15,8 +15,9 @@ use WWW::Webrobot::CGIHelper;
 
 my $USAGE = <<EOF;
 USAGE: webrobot [options]
-Options are written 'option_name=value_of_option'
-
+-h              this message
+-v              version
+All other options are written 'option_name=value_of_option'.
 option           description
 ------------------------------------------------------------------------
 cfg              test configuration [mandatory], must end in '.prop'
@@ -24,8 +25,10 @@ testplan         overwrite 'testplan' in cfg
 <property>       set property
 EOF
 
-my ($p1, $muell) = @ARGV;
-do {print $USAGE; exit} if ($p1 || "") =~ /^-(-)?h(elp)?$/i;
+my ($p1, $other) = @ARGV;
+$p1 ||= "";
+do {print $USAGE; exit} if $p1 =~ /^-(-)?h(elp)?$/i;
+do {print "Webrobot version: $WWW::Webrobot::VERSION\n"; exit} if $p1 =~ /^-(-)?v(ersion)?$/i;
 
 my $cgi = CGI -> new();
 my $cfg_name = $cgi->param('cfg') or die "No configuration file defined!";
@@ -36,10 +39,13 @@ MAIN: {
     my $webrobot = WWW::Webrobot -> new(\$cfg_name, $cmd_param);
     my $exit = $webrobot -> run(\$test_plan_name);
 
+    # flush output, because attachments for send_mail
+    # may be these handles redirected output
+    close STDOUT;
+    close STDERR;
+
     # conditionally send mail
-    if (! WWW::Webrobot::SendMail::send_mail($webrobot -> cfg() -> {mail}, $exit)) {
-        print "Can't send mail:\n$@" if $@;
-    }
+    WWW::Webrobot::SendMail::send_mail($webrobot->cfg()->{mail}, $exit);
 
     exit $exit;
 }

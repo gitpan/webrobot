@@ -4,12 +4,7 @@ package WWW::Webrobot::SelftestRunner;
 # Copyright(c) 2004 ABAS Software AG
 
 use Exporter;
-use base Exporter;
-@EXPORT_OK = qw(
-    RunTestplan
-    HttpdEcho
-    Config
-);
+@EXPORT_OK = qw/ RunTestplan HttpdEcho Config /;
 
 use strict;
 use warnings;
@@ -26,11 +21,12 @@ use WWW::Webrobot::StupidHTTPD;
 
 WWW::Webrobot::SelftestRunner - Start httpd and run a test plan
 
-
 =head1 SYNOPSIS
 
- use WWW::Webrobot::SelftestRunner qw(RunTestplan HttpdEcho CfgTest CfgHtml);
- exit RunTestplan(HttpdEcho, CfgTest, $test_plan);
+ use WWW::Webrobot::SelftestRunner qw/RunTestplan HttpdEcho Config/;
+ exit RunTestplan(HttpdEcho, Config(qw/Test/, $test_plan);
+
+ exit RunTestplan(HttpdEcho, Config(qw/Test Html/, $test_plan);
 
 see also t/get.t
 
@@ -70,6 +66,17 @@ sub RunTestplan {
 }
 
 
+my $simple_html_text = <<'EOF';
+<html>
+    <head>
+        <title>A_Static_Html_Page</title>
+    </head>
+    <body>
+        A simple text.
+    </body>
+</html>
+EOF
+
 my $ACTION = {
     url => sub {
         my ($connection, $request) = @_;
@@ -89,16 +96,18 @@ my $ACTION = {
     },
     constant_html_0 => sub {
         my ($connection, $request) = @_;
-        return <<'EOF';
-<html>
-    <head>
-        <title>A_Static_Html_Page</title>
-    </head>
-    <body>
-        A simple text.
-    </body>
-</html>
-EOF
+        return $simple_html_text;
+    },
+    html_as_utf8 => sub {
+        my ($connection, $request) = @_;
+        my $path = $request->uri();
+        my $file = $path || "";
+        $file =~ s{^/*html_as_utf8/(.*)$}{$1};
+        local *F;
+        open F, "<$file" or die "Can't open '$file': $!";
+        my $html = do { local $/; <F> };
+        close F;
+        return $html;
     },
 };
 
@@ -118,8 +127,10 @@ Actions are
 =cut
 
 sub HttpdEcho {
-    my $plain_header = HTTP::Headers -> new(Content_Type => 'text/plain');
-    my $html_header = HTTP::Headers -> new(Content_Type => 'text/html');
+    my %parm = (@_);
+    my $charset = $parm{charset} ? "; charset=" . $parm{charset} : "";
+    my $plain_header = HTTP::Headers -> new(Content_Type => "text/plain$charset");
+    my $html_header = HTTP::Headers -> new(Content_Type => "text/html$charset");
     return sub {
         my ($connection, $request) = @_;
 
@@ -142,7 +153,7 @@ sub HttpdEcho {
 
 =item Config(Modulenames...)
 
-Simple config string for L<WWW::Webrobot::Print::*> output.
+Simple config string for C<WWW::Webrobot::Print::*> output.
 Defaults to "Test" if no parameter is given.
 
 Example:
