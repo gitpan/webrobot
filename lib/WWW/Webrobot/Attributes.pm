@@ -28,11 +28,11 @@ sub import {
 
 =head1 NAME
 
-WWW::Webrobot::Attributes - define setter/getter for attributes
+WWW::Webrobot::Attributes - define setter/getter for attributes of a class
 
 =head1 SYNOPSIS
 
- use WWW::Webrobot::Attributs qw(attr1 attr2 attr3);
+ use WWW::Webrobot::Attributes qw(attr1 attr2 attr3);
 
 =head1 DESCRIPTION
 

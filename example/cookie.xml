@@ -13,19 +13,19 @@ application
 
     <request>
         <method value='GET'/>
-        <url value='{application}/tree.do?id=3&amp;a=1&amp;treeId=troja.mainmenu.id'/>
+        <url value='${application}/tree.do?id=3&amp;a=1&amp;treeId=troja.mainmenu.id'/>
         <description value='Request 1'/>
     </request>
 
     <request>
         <method value='GET'/>
-        <url value='{application}/tree.do?id=3&amp;a=1&amp;treeId=troja.mainmenu.id'/>
+        <url value='${application}/tree.do?id=3&amp;a=1&amp;treeId=troja.mainmenu.id'/>
         <description value='Request 2'/>
     </request>
 
     <request>
         <method value='GET'/>
-        <url value='{application}/tree.do?id=3&amp;a=1&amp;treeId=troja.mainmenu.id'/>
+        <url value='${application}/tree.do?id=3&amp;a=1&amp;treeId=troja.mainmenu.id'/>
         <description value='Request 3'/>
     </request>
     
@@ -33,13 +33,13 @@ application
 
     <request>
         <method value='GET'/>
-        <url value='{application}/tree.do?id=3&amp;a=1&amp;treeId=troja.mainmenu.id'/>
+        <url value='${application}/tree.do?id=3&amp;a=1&amp;treeId=troja.mainmenu.id'/>
         <description value='Request 4'/>
     </request>
 
     <request>
         <method value='GET'/>
-        <url value='{application}/tree.do?id=3&amp;a=1&amp;treeId=troja.mainmenu.id'/>
+        <url value='${application}/tree.do?id=3&amp;a=1&amp;treeId=troja.mainmenu.id'/>
         <description value='Request 5'/>
     </request>
 
@@ -47,13 +47,13 @@ application
 
     <request>
         <method value='GET'/>
-        <url value='{application}/tree.do?id=3&amp;a=1&amp;treeId=troja.mainmenu.id'/>
+        <url value='${application}/tree.do?id=3&amp;a=1&amp;treeId=troja.mainmenu.id'/>
         <description value='Request 6'/>
     </request>
 
     <request>
         <method value='GET'/>
-        <url value='{application}/tree.do?id=3&amp;a=1&amp;treeId=troja.mainmenu.id'/>
+        <url value='${application}/tree.do?id=3&amp;a=1&amp;treeId=troja.mainmenu.id'/>
         <description value='Request 7'/>
     </request>
 
@@ -61,14 +61,22 @@ application
 
     <request>
         <method value='GET'/>
-        <url value='{application}/tree.do?id=3&amp;a=1&amp;treeId=troja.mainmenu.id'/>
+        <url value='${application}/tree.do?id=3&amp;a=1&amp;treeId=troja.mainmenu.id'/>
         <description value='Request 8'/>
     </request>
 
     <request>
         <method value='GET'/>
-        <url value='{application}/tree.do?id=3&amp;a=1&amp;treeId=troja.mainmenu.id'/>
+        <url value='${application}/tree.do?id=3&amp;a=1&amp;treeId=troja.mainmenu.id'/>
         <description value='Request 9'/>
+    </request>
+
+    <cookies value='clear_temporary'/>
+
+    <request>
+        <method value='GET'/>
+        <url value='${application}/tree.do?id=3&amp;a=1&amp;treeId=troja.mainmenu.id'/>
+        <description value='Request 10'/>
     </request>
 
 </plan>

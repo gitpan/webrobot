@@ -9,7 +9,7 @@ use warnings;
 use WWW::Webrobot::UserAgentConnection;
 use WWW::Webrobot::Print::Null;
 
-use WWW::Webrobot::Attributes qw(sym_tbl);
+use WWW::Webrobot::Attributes qw(sym_tbl failed_assertions);
 
 
 =head1 NAME
@@ -66,17 +66,35 @@ sub run {
     $self -> {_sym_tbl} = $sym_tbl;
     $self -> {_ua_list} = {};
     $self -> {_defined} = [];
+    $self -> {_failed_assertions} = 0;
+    my $max_errors = $cfg->{max_errors} ? sub {
+        my ($fail) = @_;
+        $self->{_failed_assertions}++ if $fail;
+        $self->{_failed_assertions} >= $cfg->{max_errors};
+    } : sub {0};
 
     # treat testplan
     my $out = $cfg -> {output} || WWW::Webrobot::Print::Null -> new();
     $_ -> global_start() foreach (@$out);
     my $exit_status = 0;
+    ENTRY:
     foreach my $entry (@$testplan) {
         $sym_tbl -> evaluate($entry);
-        $entry->{assert}  = get_plugin($entry->{assert_xml})
-            if defined $entry->{assert_xml};
-        $entry->{recurse} = get_plugin($entry->{recurse_xml})
-            if defined $entry->{recurse_xml};
+        if (defined (my $xml = $entry->{assert_xml})) {
+            my $name = $xml->[0];
+            if ($name =~ /^[A-Z][^.]*\./) {
+                my ($tag, $content) = splice(@$xml, 0, 2);
+                $entry->{assert} = get_plugin($tag, $content);
+            }
+            else {
+                unshift @$xml, {};
+                $entry->{assert} = get_plugin('WWW.Webrobot.Assert', $xml);
+            }
+        }
+        if (defined (my $xml = $entry->{recurse_xml})) {
+            my ($tag, $content) = splice(@$xml, 0, 2);
+            $entry->{recurse} = get_plugin($tag, $content);
+        }
 
         my $user = $self -> _get_ua_connection($cfg, $entry -> {useragent});
 
@@ -86,6 +104,7 @@ sub run {
         $entry->{fail} = $fail_plan;
         $entry->{fail_str} = $fail_plan_str;
         $_ -> item_post($r_plan, $entry, $fail_plan) foreach (@$out);
+        last ENTRY if $max_errors->($fail_plan);
 
         # do recursion
         my $fail_all = $fail_plan;
@@ -107,6 +126,7 @@ sub run {
                 $entry_recurse->{fail} = $fail;
                 $entry_recurse->{fail_str} = $fail_str;
                 $_ -> item_post($r, $entry_recurse, $fail) foreach (@$out);
+                last ENTRY if $max_errors->($fail);
 
                 $fail_all = 1 if $fail;
                 ($newurl, $caller_pages) = $recurse -> next($r);
@@ -137,14 +157,14 @@ sub save_memory {
 
 
 sub get_plugin {
-    my ($list) = @_;
-    my ($tag, $content) = splice(@$list, 0, 2);
+    my ($tag, $content) = @_;
     $tag =~ s/\./::/g;
     # ??? delete ', 0' in following line
     my $ret = eval "require $tag; $tag -> new(\$content, 0);";
     die "Can't use lib $tag: $@" if $@;
     return $ret;
 }
+
 
 # get useragent - create one if nonexistent
 sub _get_ua_connection {

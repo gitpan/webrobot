@@ -24,14 +24,14 @@ WWW::Webrobot::pod::Testplan - How to write a test plan for L<webrobot>
             <url value='http://google.de/'/>
             <description value='Visit Google'/>
             <assert>
-                <WWW.Webrobot.Assert>
-                    <and>
-                        <status value='200'/>
-                        <regex value='Erweiterte Suche'/>
+                <and>
+                    <status value='200'/>
+                    <regex value='Erweiterte Suche'/>
+                    <not>
                         <regex value='Sprachtools'/>
-                        <timeout value='2.5'/>
-                    </and>
-                </WWW.Webrobot.Assert>
+                    </not>
+                    <timeout value='2.5'/>
+                </and>
             </assert>
         </request>
 
@@ -112,14 +112,18 @@ Example:
 
 =head1 Tag <cookies>
 
-By default cookies are on.
-You can switch cookies off or you can just clear the cookies.
+By default cookies are C<on>.
+You can switch cookies C<off> or you can just C<clear> the cookies.
+While C<clear> will clear all cookies,
+C<clear_temporary> will clear only temporary cookies.
+A browser must clear all temporary cookies when it will be closed.
 
 Example:
 
         <cookies value='on'/>
         <cookies value='off'/>
         <cookies value='clear'/>
+        <cookies value='clear_temporary'/>
 
 =head1 Tag <referrer>
 
@@ -328,7 +332,31 @@ The predicate is true if the request takes no more than C<value> seconds.
 
 =back
 
-B<Example:>
+B<Note 1:>
+A toplevel C<and> operator may be left out.
+
+B<Note 2:>
+The class name C<WWW.Webrobot.Assert> may be left out.
+Class names must start with a capital letter and must contain a period,
+while operators and predicates don't.
+
+
+B<Example> where toplevel C<and> and class name C<WWW.Webrobot.Assert> is left out:
+
+        <assert>
+            <status value='2'/>
+            <or>
+                <string value='Login'/>
+                <regex value='Log(out|off)'/>
+            </or>
+            <not>
+                <string value='Error'/>
+            </not>
+            <xpath xpath='//title/text()' value='Welcome'/>
+            <timeout value='2.7'/>
+        </assert>
+
+B<Complete example> doing the same:
 
         <assert>
             <WWW.Webrobot.Assert>
@@ -347,6 +375,7 @@ B<Example:>
             </WWW.Webrobot.Assert>
         </assert>
 
+ 
 The default assertion (if you do not annotate any assertion) is
 C<< <status value='2'/> >>.
 
@@ -657,6 +686,12 @@ HTTPS
 
 L<http://www.faqs.org/rfcs/rfc2617.html>:
 HTTP Authentication: Basic and Digest Access Authentication
+
+=item RFC 2965
+
+L<http://www.faqs.org/rfcs/rfc2965.html>
+HTTP State Management Mechanism
+
 
 =item RFC 2109
 

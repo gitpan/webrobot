@@ -181,15 +181,25 @@ my %ACTION = (
         my ($uac, $arg, $sym_tbl) = @_;
         my $ua = $uac->ua;
         SWITCH: foreach ($arg->{url}) {
-            m/^on$/i || m/^clear$/i && $ua->cookie_jar() and do {
-                if ($ua->cookie_jar()) {
-                    my $cookie_jar = HTTP::Cookies -> new(File => "cookies.txt", AutoSave => 0);
-                    $ua->cookie_jar($cookie_jar);
-                }
+            m/^on$/i and do {
+                my $cookie_jar = HTTP::Cookies -> new(File => "cookies.txt", AutoSave => 0);
+                $ua->cookie_jar($cookie_jar);
                 last;
             };
             m/^off$/i and do {
                 $ua->cookie_jar(undef);
+                last;
+            };
+            m/^clear$/i and do {
+                if (my $cookies = $ua->cookie_jar()) {
+                    $cookies->clear();
+                }
+                last;
+            };
+            m/^clear_temporary$/i and do {
+                if (my $cookies = $ua->cookie_jar()) {
+                    $cookies->clear_temporary_cookies();
+                }
                 last;
             };
         }

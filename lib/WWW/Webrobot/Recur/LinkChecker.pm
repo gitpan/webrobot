@@ -89,7 +89,7 @@ sub new {
     my $self = bless({}, ref($class) || $class);
     my ($tree) = @_;
     $self->{evaluator} = WWW::Webrobot::Tree2Postfix -> new(
-        $unary_operator, $binary_operator, $predicate
+        $unary_operator, $binary_operator, $predicate, "and"
     );
     $self->{evaluator}->tree2postfix($tree);
     $self->{follow_link} = sub {

@@ -286,6 +286,10 @@ See L</SYNOPSIS> or L<MIME::Lite> if you feel it is not self explanatory.
  mail.Encoding
  mail.Data
 
+=item max_errors (value)
+
+The maximum number of errors (originated from assertions) where Webrobot should exit.
+No effekt if "0", "" or missing.
 
 =back
 

@@ -1,3 +1,15 @@
+0.70 2005-03-14
+        - <assert>
+          Two reasonable defaults are introduced:
+          - the <WWW.Webrobot.Assert> tag is optional
+          - multiple top level predicates are allowed. The default
+            is a top level <and> operation.
+          This simplifies assertions.
+        - you may clear temporary cookies (aka close and reopen browser)
+        - exit when assertions encountered 'max_errors' (defined in the
+          config file) errors.
+        - WWW::Webrobot::Print::TestSimple: more output
+
 0.62 2004-12-07
         - Sending mail: there is now a separate program 'webrobot-send-mail'.
           It uses the same config file.

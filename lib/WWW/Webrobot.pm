@@ -5,7 +5,7 @@ use warnings;
 # Author: Stefan Trcek
 # Copyright(c) 2004 ABAS Software AG
 
-*VERSION = \'0.62';
+*VERSION = \'0.70';
 
 use Carp;
 use WWW::Webrobot::Properties;
@@ -241,8 +241,8 @@ sub xml2planlist {
             };
             /^cookies$/ and do {
                 for ($content->[0]->{value} || "") {
-                    assert(m/^on$/i || m/^off$/i || m/^clear$/i,
-                           "found '$_', expected 'on', 'off, 'clear'");
+                    assert(m/^on$/i || m/^off$/i || m/^clear$/i || m/^clear_temporary$/i,,
+                           "found '$_', expected one of [on, off, clear, clear_temporary]");
                     push @$plan, {method => "COOKIES", url => "$_"};
                 }
                 last;

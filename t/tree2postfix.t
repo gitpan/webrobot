@@ -25,7 +25,7 @@ my $predicate = {
 
 my $parser = new WWW::Webrobot::XML2Tree();
 my $evaluator = WWW::Webrobot::Tree2Postfix -> new(
-    $unary_operator, $binary_operator, $predicate
+    $unary_operator, $binary_operator, $predicate, "plus"
 );
 
 sub eval_xml {

@@ -7,6 +7,7 @@ use warnings;
 
 
 use Data::Dumper;
+use Carp;
 
 
 sub _init {
@@ -15,8 +16,8 @@ sub _init {
     $self->{$attr_fun} = sub {
         my ($operator) = @_;
         return $op -> {$operator} || sub {
-            die "Operator <$operator> not allowed";
-            # croak!
+            my $op = ref $operator ? Dumper($operator) : "<$operator>";
+            Carp::confess "Operator $op not allowed";
         }
     };
 }
@@ -24,19 +25,20 @@ sub _init {
 sub new {
     my $class = shift;
     my $self = bless({}, ref($class) || $class);
-    my ($unary_op, $binary_op, $predicate) = @_;
+    my ($unary_op, $binary_op, $predicate, $default_binary_op) = @_;
+    die '$default_binary_op must be an element of $binary_op'
+        if defined $default_binary_op && !exists $binary_op->{$default_binary_op};
     $self->_init($unary_op, "unary_op", "unary_fun");
     $self->_init($binary_op, "binary_op", "binary_fun");
     $self->_init($predicate, "predicate", "predicate_fun");
+    $self->{default_binary_op} = $default_binary_op;
     return $self;
 }
 
 sub tree2postfix {
     my ($self, $tree) = @_;
     $self->{postfix} = [];
-    my ($attributes, $tag, $content) = splice(@$tree, 0, 3);
-    $self->tree2postfix0($attributes, $tag, $content);
-    die "only one predicate allowed at this place: <$tag>" if @$tree;
+    $self->tree2postfix0({}, $self->{default_binary_op}, $tree);
     #return $self->{postfix};
 }
 

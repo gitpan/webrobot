@@ -7,6 +7,8 @@ use warnings;
 
 use CGI qw(:standard -no_xhtml);
 #use diagnostics
+#$SIG{__DIE__} = \&Carp::confess;
+#$SIG{__WARN__} = \&Carp::cluck;
 
 use WWW::Webrobot;
 use WWW::Webrobot::SendMail;
