@@ -92,11 +92,20 @@ sub to_xhtml {
     # $xml has all byte encoded as &#xx;
     $tree = $tree -> delete;
 
-    # Decode UTF-8 characters and control characters, $xml is ASCII
-    $xml =~ s/(&\#(\d+);)/ 32 <= $2 && $2 < 128 ? $1 : pack("C", $2) /eg;
-
-    # Now we have an UTF-8 string and must Perl believe so too.
-    Encode::_utf8_on($xml) if has_Encode();
+    if (! has_Encode()) {
+        # Decode UTF-8 characters and control characters, $xml is ASCII
+        $xml =~ s/(&\#(\d+);)/ 32 <= $2 && $2 < 128 ? $1 : pack("C", $2) /eg;
+    }
+    elsif (Encode::is_utf8($xml)) { # SunOS 5.7 / perl 5.8.5
+        # Decode UTF-8 characters and control characters, $xml is UTF-8
+        $xml =~ s/(&\#(\d+);)/ 32 <= $2 && $2 < 128 ? $1 : pack("U", $2) /eg;
+    }
+    else { # Linux perl 5.8.0/5.8.5, Win32 perl 5.8.0
+        # Decode UTF-8 characters and control characters, $xml is ASCII
+        $xml =~ s/(&\#(\d+);)/ 32 <= $2 && $2 < 128 ? $1 : pack("C", $2) /eg;
+        # Now we have an UTF-8 string and must Perl believe so too.
+        Encode::_utf8_on($xml);
+    }
 
     return $xml;
 }

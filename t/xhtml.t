@@ -38,6 +38,7 @@ sub check_file {
 
     local *F;
     open F, "<$filename" or die "Can't open file=$filename, $!";
+    binmode F;
     my $content = do {local $/; <F>};
     close F;
 

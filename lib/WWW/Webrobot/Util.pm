@@ -8,7 +8,7 @@ use warnings;
 
 use Exporter;
 use base qw/Exporter/;
-our @EXPORT_OK = qw/ascii textify/;
+our @EXPORT_OK = qw/ascii textify octet/;
 
 
 =head1 NAME
@@ -43,8 +43,6 @@ sub _encode_text {
 
 encode all multi-byte and control characters in printable form
 
-=back
-
 =cut
 
 sub ascii {
@@ -63,13 +61,9 @@ sub ascii {
     @_);
 }
 
-=over
-
 =item textify
 
 encode all multi-byte characters in printable form
-
-=back
 
 =cut
 
@@ -86,6 +80,56 @@ sub textify {
     },
     @_);
 }
+ 
 
+=item octet
+
+encode non-printables except control characters as octets
+
+=cut
+
+sub octet {
+    _encode_text(sub {
+        join("",
+            map {
+                $_ > 255 ?                      # if wide character...
+                    sprintf("\\x{%04X}", $_)    #     \x{...}
+                : $_ > 127 ?                    # if 1xxxxxxx
+                    sprintf("\\x{%02X}", $_)      #     \x..
+                :                               # else
+                    chr($_)                     #     as themselves
+            } unpack("C*", $_[0])
+        );
+    },
+    @_);
+}
+
+=item octet_all
+
+encode non-printables as octets
+
+=cut
+
+sub octet_all {
+    _encode_text(sub {
+        join("",
+            map {
+                $_ > 255 ?                      # if wide character...
+                    sprintf("\\x{%04X}", $_)    #     \x{...}
+                : chr($_) =~ /[[:cntrl:]]/ ?    # else if control character ...
+                    sprintf("\\x{%02X}", $_)      #     \x..
+                : $_ > 127 ?                    # if 1xxxxxxx
+                    sprintf("\\x{%02X}", $_)      #     \x..
+                :                               # else
+                    chr($_)                     #     as themselves
+            } unpack("C*", $_[0])
+        );
+    },
+    @_);
+}
+
+=back
+
+=cut
 
 1;

@@ -88,6 +88,7 @@ t/encode/plan-chinese.xml
 t/encode/plan-umlaut.xml
 t/ext-http-response.t
 t/get.t
+t/html-treebuilder.t
 t/makeplan.t
 t/plan/shuffle.xml
 t/post.t
@@ -109,3 +110,4 @@ t/xhtml/chinese.html
 t/xhtml/isolatin-doctype.html
 t/xhtml/isolatin-simple.html
 t/xhtml/isolatin.html
+x
