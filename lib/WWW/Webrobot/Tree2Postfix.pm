@@ -47,22 +47,33 @@ sub tree2postfix0 {
     #print "ATT,TAG,CONTENT: $p_attributes, $p_tag, $p_content\n";
     #print Dumper($p_content);
     die "missing predicate" if ! $p_tag;
+    my $attributes = $p_content->[0];
     if ($self->{binary_op}->{$p_tag}) {
-        my ($attributes, $tag, $content) = splice(@$p_content, 0, 3);
+        my $tag = $p_content->[1];
+        my $content = $p_content->[2];
         $self->tree2postfix0($attributes, $tag, $content);
-        while (scalar @$p_content) {
-            ($tag, $content) = splice(@$p_content, 0, 2);
+        for (my $i = 3; $i < scalar @$p_content; $i += 2) {
+            $tag = $p_content->[$i];
+            $content = $p_content->[$i+1];
             $self->tree2postfix0($attributes, $tag, $content);
             push @{$self->{postfix}}, $p_tag;
         }
     }
     elsif ($self->{unary_op}->{$p_tag}) {
-        my ($attributes, $tag, $content) = splice(@$p_content, 0, 3);
+        my $tag = $p_content->[1];
+        my $content = $p_content->[2];
         $self->tree2postfix0($attributes, $tag, $content);
         push @{$self->{postfix}}, $p_tag;
-        die "only one predicate allowed at this place: <$tag>" if @$p_content;
+        die "only one predicate allowed at this place: <$tag>" if @$p_content > 3;
     }
     else {
+        my $attributes = $p_content->[0];
+        if (@$p_content > 2 && ! $p_content->[1] && ! exists $attributes->{value}) {
+            $attributes->{value} = $p_content->[2];
+            # skip leading and trailing white space
+            $attributes->{value} =~ s/^\s+//s;
+            $attributes->{value} =~ s/\s+$//s;
+        }
         push @{$self->{postfix}}, [$p_tag, $p_content];
     }
 }

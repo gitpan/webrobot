@@ -66,13 +66,22 @@ sub RunTestplan {
 }
 
 
-my $simple_html_text = <<'EOF';
+my $simple_html_text_0 = <<'EOF';
 <html>
     <head>
         <title>A_Static_Html_Page</title>
     </head>
     <body>
         A simple text.
+    </body>
+</html>
+EOF
+
+my $simple_html_text_1 = <<'EOF';
+<html>
+    <body>
+        Confuse perl regular expressions: [a-z]
+        HTMLish&nbsp;text
     </body>
 </html>
 EOF
@@ -96,7 +105,11 @@ my $ACTION = {
     },
     constant_html_0 => sub {
         my ($connection, $request) = @_;
-        return $simple_html_text;
+        return $simple_html_text_0;
+    },
+    constant_html_1 => sub {
+        my ($connection, $request) = @_;
+        return $simple_html_text_1;
     },
     html_as_utf8 => sub {
         my ($connection, $request) = @_;
@@ -109,6 +122,8 @@ my $ACTION = {
         close F;
         return $html;
     },
+    # 500 => sub {},
+    # Don't use '500' as a key: some tests rely that this key doesn't exist!
 };
 
 =item HttpdEcho

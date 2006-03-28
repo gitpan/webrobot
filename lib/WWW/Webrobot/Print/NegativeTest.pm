@@ -17,12 +17,11 @@ sub new {
 }
 
 sub global_start {
-    #my $self = shift;
+    #my ($self) = @_;
 }
 
 sub item_pre {
-    #my $self = shift;
-    #my ($arg) = @_;
+    #my ($self, $arg) = @_;
 }
 
 
@@ -35,8 +34,9 @@ sub item_post {
     my $out_ok = "$arg->{method} $arg->{url}";
     $out_ok .= " '$_'=>'$data->{$_}'" foreach (keys %$data);
     my $tmp = $arg->{fail_str};
-    my $fail_str = (ref $tmp eq 'ARRAY') ? join("\n", @$tmp) : $tmp || "";
-    if (! ok($arg->{fail}, textify $out_ok)) {
+    my $fail_str = !defined $tmp ? "" : (ref $tmp eq 'ARRAY') ? join("\n", @$tmp) : $tmp || "";
+    my $ok = defined $arg->{fail} ? $arg->{fail} : 1;
+    if (! ok($ok, textify $out_ok)) {
         diag " "x4 . textify "Request:     $arg->{method} $arg->{url}";
         diag " "x4 . textify "Description: $arg->{description}";
         if ($data && scalar keys %$data) {

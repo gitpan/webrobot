@@ -1,6 +1,8 @@
 #!/usr/bin/perl -w
 use strict;
 use warnings;
+use Carp;
+$SIG{__DIE__} = \&confess;
 
 use Test::More tests => 4;
 use WWW::Webrobot::XML2Tree;

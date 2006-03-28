@@ -72,12 +72,12 @@ sub eventloop {
                 elsif (defined $read) { # is zero
                     $rin = set_bit($rin, $fd, 0);
                     print STDERR "EOF ", $fd, "\n" if $self->verbose;
-                    close($h) or warn($! ? "$fd: Error=$! closing pipe" : "$fd: Child exit status=$?");
+                    close($h) or warn(($!) ? "$fd: Error=$! closing pipe" : "$fd: Child exit status=$?");
                 }
                 else { # is undefined -> error
                     $rin = set_bit($rin, $fd, 0);
                     print STDERR "EOF=ERROR ", $fd, "\n" if $self->verbose;
-                    close($h) or warn($! ? "$fd: Error=$! closing pipe" : "$fd: Exit status=$?");
+                    close($h) or warn(($!) ? "$fd: Error=$! closing pipe" : "$fd: Exit status=$?");
                 }
             }
             $fd++;

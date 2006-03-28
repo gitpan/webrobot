@@ -3,13 +3,15 @@ use strict;
 use warnings;
 
 # Author: Stefan Trcek
-# Copyright(c) 2004 ABAS Software AG
+# Copyright(c) 2004-2006 ABAS Software AG
 
 
 use WWW::Webrobot::UserAgentConnection;
 use WWW::Webrobot::Print::Null;
-
+use WWW::Webrobot::AssertConstant;
 use WWW::Webrobot::Attributes qw(sym_tbl failed_assertions);
+
+my $ASSERT_TRUE = WWW::Webrobot::AssertConstant->new(0, ["0 always true"]);
 
 
 =head1 NAME
@@ -77,23 +79,36 @@ sub run {
     my $out = $cfg -> {output} || WWW::Webrobot::Print::Null -> new();
     $_ -> global_start() foreach (@$out);
     my $exit_status = 0;
+    my @global_assert_xml = ();
     ENTRY:
     foreach my $entry (@$testplan) {
-        $sym_tbl -> evaluate($entry);
-        if (defined (my $xml = $entry->{assert_xml})) {
-            my $name = $xml->[0];
-            if ($name =~ /^[A-Z][^.]*\./) {
-                my ($tag, $content) = splice(@$xml, 0, 2);
-                $entry->{assert} = get_plugin($tag, $content);
-            }
-            else {
-                unshift @$xml, {};
-                $entry->{assert} = get_plugin('WWW.Webrobot.Assert', $xml);
+        # assertion
+        my @a_xml = ();
+        if (defined $entry->{global_assert_xml}) { # defining a global assertion
+            @global_assert_xml = () if $entry->{mode} eq "new";
+            push @global_assert_xml, clone_me($entry->{global_assert_xml});
+        }
+        else {
+            push @a_xml, clone_me($entry->{assert_xml}) if defined $entry->{assert_xml};
+            push @a_xml, clone_me($_) foreach (@global_assert_xml);
+        }
+        $entry->{assert_xml} = \@a_xml;
+        $sym_tbl -> evaluate($entry); # substitute variables
+
+        my @a = ();
+        if (defined $entry->{global_assert_xml}) {
+            push @a, $ASSERT_TRUE;
+        }
+        else {
+            foreach (@{$entry->{assert_xml}}) {
+                push @a, parse_assertion($_);
             }
         }
+        $entry->{assert} = \@a;
+
+        # recursion
         if (defined (my $xml = $entry->{recurse_xml})) {
-            my ($tag, $content) = splice(@$xml, 0, 2);
-            $entry->{recurse} = get_plugin($tag, $content);
+            $entry->{recurse} = get_plugin($xml->[0], $xml->[1]);
         }
 
         my $user = $self -> _get_ua_connection($cfg, $entry -> {useragent});
@@ -117,6 +132,7 @@ sub run {
                     url => $newurl,
                     description => $entry->{description},
                     assert => $entry->{assert},
+                    global_assert => $entry->{global_assert},
                     caller_pages => $caller_pages,
                     is_recursive => 1,
                 };
@@ -142,6 +158,41 @@ sub run {
     }
     $_ -> global_end() foreach (@$out);
     return $exit_status;
+}
+
+
+sub clone_me {
+    my ($tree) = @_;
+    SWITCH: foreach (ref $tree) {
+        /^ARRAY$/ and do {
+            my @array = ( @$tree );
+            foreach my $elem (@array) {
+                $elem = clone_me($elem) if ref $elem;
+            }
+            return \@array;
+        };
+        /^HASH$/ and do {
+            my %hash = ();
+            while (my ($key,$value) = each %$tree) {
+                $hash{$key} = ref $value ? clone_me($value) : $value;
+            }
+            return \%hash;
+        };
+        return undef;
+    };
+}
+
+
+sub parse_assertion {
+    my ($assert_xml) = @_;
+    return undef if ! defined $assert_xml;
+    my $name = $assert_xml->[0];
+    if ($name =~ /^[A-Z][^.]*\./) {
+        return get_plugin($assert_xml->[0], $assert_xml->[1]);
+    }
+    else {
+        return get_plugin('WWW.Webrobot.Assert', [{}, @$assert_xml]);
+    }
 }
 
 

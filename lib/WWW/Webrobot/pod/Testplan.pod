@@ -129,8 +129,8 @@ Example:
 
 By default no http referrers will be sent.
 You can switch this behaviour on or off or you can just clear the referrer.
-If you want referrers to be switched on
-place the <referrer> tag at least before the request that must be referred to.
+If you want referrers to be switched on,
+then place the <referrer> tag at least before the request that must be referred to.
 
 Example:
 
@@ -159,7 +159,7 @@ Example for the properties format:
 
 =head1 Tag <request>
 
-This tag denotes a single request (however, see the C<recurse> tag).
+This tag denotes a single request (however, see the C<< <recurse> >> tag).
 A request must define a B<method> and an B<url>.
 All other tags are optional.
 The child elements of B<request> are shown below.
@@ -170,6 +170,11 @@ The child elements of B<request> are shown below.
 The http method of the request, usually GET or POST.
 
         <method value='GET'/>
+
+Values: GET, HEAD, POST, PUT.
+
+POST and PUT may be feeded by the C<<data>> section.
+Note that there are other uses of GET and POST that are currently not supported.
 
 =head2 Request <url>
 
@@ -193,7 +198,9 @@ The type is string and it defaults to the empty string.
 
 This tag is usefull for test plans containing interwoven
 but serialized requests of multiple users.
-Useragents are created behind the scene.
+Useragents are created behind the scene,
+so you need not declare anything, just use it.
+If you do not specify a useragent you implicitly specified the default user.
 
         <useragent value="first user"/>
 
@@ -201,6 +208,17 @@ The value of this attribute is concatenated to the
 HTTP header attribute 'user_agent'.
 So you can easily determine which user caused the request,
 see HTML output.
+
+=head2 Request <http-header>
+
+Specify HTTP headers.
+These headers are set in this request only.
+Specify HTTP headers in the config file
+if you want to set HTTP headers for any request.
+
+        <http-header name="User-Agent" value="overwrites the user agent"/>
+        <http-header name="A-New-Name" value="a new value"/>
+
 
 =head2 Request <data>
 
@@ -277,13 +295,18 @@ so there should usually be no HTTP response code 3xx
 
 If the C<value> is a I<three digit number>
 then the predicate does an exact string compare to the status code.
+
 If the C<value> is a I<one digit number>
 then the predicate compares to the error class,
 i.e. value B<4> matches all HTTP errors B<4xx>.
 
 =item <string>
 
-This predicate matches whether  the C<value> is in the content.
+This predicate matches whether the C<value> is in the content.
+
+=item <file>
+
+Like <string> but matches against the content of the file denoted by the value attribute.
 
 =item <regex>
 
@@ -329,6 +352,13 @@ otherwise the behavior is undefined.
 =item <timout>
 
 The predicate is true if the request takes no more than C<value> seconds.
+
+=item <header>
+
+This predicate tests whether a header field C<name> contains the value C<value>.
+Example:
+
+        <header name="Content-type" value="text/html"/>
 
 =back
 
@@ -376,8 +406,32 @@ B<Complete example> doing the same:
         </assert>
 
  
-The default assertion (if you do not annotate any assertion) is
+The built-in default assertion (if you do not annotate any assertion) is
 C<< <status value='2'/> >>.
+
+B<Tag content>:
+
+Instead of defining a 'value' attribute you may define a value
+as content of a tag.
+Leading and trailing white space including new line characters
+will be skipped.
+This allows for smart formatting in the test plan.
+Note that any other white space must be precisely adhered to.
+See the leading white space of '<head>'.
+
+        <string>
+            <![CDATA[
+        <html>
+            <head>
+                <title>A_Static_Html_Page</title>
+            </head>
+            <body>
+                A simple text.
+            </body>
+        </html>
+            ]]>
+        </string>
+
 
 =head2 Request <recurse>
 
@@ -582,6 +636,36 @@ I<Examples:>
 
 
 
+=head1 Tag <global-assertion>
+
+This assertion is executed for any request
+(from the point on where you define it).
+Name substitution takes place when the calling request is executed,
+so this assertion my expand different during the execution of the test.
+
+An assertion of a request is true
+if both the global assertion is true B<and>
+and the assertion of the request is true.
+
+The build-in assertion will only be executed
+if there is neither a global assertion nor an assertion specific to a request.
+
+I<Example:>
+
+        <global-assertion mode='new'>
+            <assert>
+                <status value='500'/>
+                <timeout value='2.7'/>
+            </assert>
+        </global-assertion>
+
+The B<mode> value may be
+
+ new
+    New global assertion. Invalidates previous global assertion
+ add (default)
+    accumulate global assertion (AND conjunction)
+
 
 =head1 Names (Variables)
 
@@ -622,7 +706,7 @@ It takes a value out of [1, 2, ... load.number_of_clients] if used with webrobot
 It is a unique id for any child process.
 
 This is especially usefull if you want to use different logins for each client,
-see the L<config> tag.
+see the C<< <config> >> tag.
 
 =back
 

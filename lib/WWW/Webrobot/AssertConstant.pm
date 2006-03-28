@@ -4,7 +4,7 @@ use warnings;
 
 
 # Author: Stefan Trcek
-# Copyright(c) 2004 ABAS Software AG
+# Copyright(c) 2004-2006 ABAS Software AG
 
 =head1 NAME
 
@@ -34,7 +34,7 @@ sub new {
 
 sub check {
     my ($self, $r) = @_;
-    return ($self->{fail}, $self->{fail_str});
+    return ($self->{fail}, [ $self->{fail_str} ]);
 }
 
 

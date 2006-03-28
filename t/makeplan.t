@@ -1,6 +1,8 @@
 #!/usr/bin/perl -w
 use strict;
 use warnings;
+use Carp;
+$SIG{__DIE__} = \&confess;
 
 use Test::More;
 
@@ -133,13 +135,9 @@ EOF
       <url value="http://erbse:6080/erp/tree.do"/>
       <description value="0"/>
       <assert>
-          <WWW.Webrobot.Assert>
-              <and>
-                  <status value="2"/>
-                  <regex value="text1"/>
-                  <regex value="text2"/>
-              </and>
-          </WWW.Webrobot.Assert>
+          <status value="2"/>
+          <regex value="text1"/>
+          <regex value="text2"/>
       </assert>
 EOF
      ],
@@ -156,13 +154,9 @@ EOF
           <parm name="name2" value="wert2"/>
       </data>
       <assert>
-          <WWW.Webrobot.Assert>
-              <and>
-                  <status value="2"/>
-                  <regex value="text1"/>
-                  <regex value="text2"/>
-              </and>
-          </WWW.Webrobot.Assert>
+          <status value="2"/>
+          <regex value="text1"/>
+          <regex value="text2"/>
       </assert>
 EOF
      ],
@@ -184,7 +178,7 @@ MAIN: {
 sub test_text {
     my ($title, $in, $expected, $xml_expected) = @_;
     (my $in_sh = $in) =~ s/'/'"'"'/g;
-    my $got = `echo '$in_sh' | $GEN_PLAN -prefix='$prefix' -output=text -encode=url -encode=data`;
+    my $got = `echo '$in_sh' | $GEN_PLAN -prefix='$prefix' -output=text -encode=url -encode=data -nodata`;
     chomp $got;
     is($got, $expected, $title);
 }
@@ -192,8 +186,16 @@ sub test_text {
 sub test_xml {
     my ($title, $in, $expected, $xml_expected) = @_;
     (my $in_sh = $in) =~ s/'/'"'"'/g;
-    my $got = `echo '$in_sh' | $GEN_PLAN -prefix='$prefix' -output=xml -encode=url -encode=data`;
-    $xml_expected = "<plan>\n<request>\n<!-- $in -->\n$xml_expected\n</request>\n</plan>\n";
+    my $got = `echo '$in_sh' | $GEN_PLAN -prefix='$prefix' -output=xml -encode=url -encode=data -nodata`;
+    $xml_expected = <<EOS;
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<plan>
+<request>
+<!-- $in -->
+$xml_expected
+</request>
+</plan>
+EOS
     ($got, $xml_expected) = norm($got, $xml_expected);
     is($got, $xml_expected, $title);
 }

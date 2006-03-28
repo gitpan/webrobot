@@ -1,3 +1,41 @@
+0.80 2006-03-27
+        NOTE: (*) may brake old behaviour
+
+        Commands
+        * webrobot, webrobot-load, webrobot-send-mail:
+          The command line syntax has changed, all parameters now by GetOpt::Long
+          Example:
+            $ webrobot --cfg config --testplan testplan
+        - webrobot-load (webrobot is OS independant):
+          Die if operation system is MSWin32.
+          This is due to magic open for creating child processes.
+        - webrobot-load: Better output
+
+        <config> tag:
+        * <config> no longer supports a <description> tag inside
+        - <config> now supports <property> tags inside (definition of properties)
+          Now you can easily set properties without doing a HTTP request.
+
+        <request> tag:
+        - <http-header>: set specific HTTP headers per request
+
+        Assertions
+        - If assertion fails then print output source of assertion in
+          WWW::Webrobot::Print::Test::Test.pm and WWW::Webrobot::Print::Test::Html.pm
+        - Assertions: new <header> assertion for HTTP header fields
+        - Allow tag content instead of 'value' attribute. E.g.:
+          <string>something</string>   instead of
+          <string value="something"/>
+        - new predicate <file>, like <string> but reads from file
+        - Global assertion: These assertions will be executed for any request.
+          Two modes: new or add (for multiple global assertions).
+
+        Others
+        - update example code
+        - some warnings repaired (no harm).
+        - webrobot-gen-plan: new option --data (default)
+          Parameters in GET will be created as <data> section
+
 0.70 2005-03-14
         - <assert>
           Two reasonable defaults are introduced:

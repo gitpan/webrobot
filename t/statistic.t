@@ -1,6 +1,8 @@
 #!/usr/bin/perl -w
 use strict;
 use warnings;
+use Carp;
+$SIG{__DIE__} = \&confess;
 
 use WWW::Webrobot::Statistic;
 use Test::More qw/no_plan/;

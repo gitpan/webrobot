@@ -3,9 +3,9 @@ use strict;
 use warnings;
 
 # Author: Stefan Trcek
-# Copyright(c) 2004 ABAS Software AG
+# Copyright(c) 2004-2006 ABAS Software AG
 
-*VERSION = \'0.70';
+*VERSION = \'0.80';
 
 use Carp;
 use WWW::Webrobot::Properties;
@@ -23,6 +23,7 @@ my %arg_default = (
                    assert => WWW::Webrobot::AssertDefault -> new(),
                    description => '',
                    useragent => '',
+                   http_header => {},
                    define => {},
                    is_recursive => 0,
                    fail_str => '',
@@ -184,19 +185,15 @@ sub assert {
 
 sub xml2testplan {
     my ($tree, $sym_tbl) = @_;
-
-    # treat root of xml
-    delete_white_space($tree);
-
-    #my $plan_attribute = shift @$tree;
     my $plan = xml2plan($tree, $sym_tbl);
     return $plan;
 }
 
 sub xml2plan {
     my ($tree, $sym_tbl) = @_;
-    my $attributes = shift @$tree;
-    my ($tag, $content) = splice(@$tree, 0, 2);
+    my $attributes = $tree->[0];
+    my $tag = $tree->[1];
+    my $content = $tree->[2];
     assert($tag eq "plan", "<plan> expected");
     my $plan = xml2planlist($content, $sym_tbl);
     return $plan;
@@ -206,9 +203,10 @@ sub xml2planlist {
     my ($tree, $sym_tbl) = @_;
 
     my $plan = [];
-    my $attributes = shift @$tree;
-    while (scalar @$tree) {
-        my ($tag, $content) = splice(@$tree, 0, 2);
+    my $attributes = $tree->[0];
+    for (my $i = 1; $i < @$tree; $i += 2) {
+        my $tag = $tree->[$i];
+        my $content = $tree->[$i+1];
         SWITCH: foreach ($tag) {
             ! $_ and do { last }; # skip white space, obsolete?
             /^plan$/ and do {
@@ -223,13 +221,14 @@ sub xml2planlist {
             };
             /^request$/ and do {
                 assert(ref $content eq 'ARRAY', "Test plan request expected");
-                push @$plan, xml2entry($content);
+                push @$plan, request2entry($content);
                 last;
             };
             /^include$/ and do {
-                my $attr = shift @$content;
+                my $attr = $content->[0];
                 my $fname = $attr->{file};
-                my $parm = get_data($content);
+                my @list = @$content[1 .. @$content-1];
+                my $parm = get_data(\@list);
                 $sym_tbl->push_scope();
                 foreach (keys %$parm) {
                     $sym_tbl->define_symbol($_, $parm->{$_});
@@ -256,38 +255,81 @@ sub xml2planlist {
                 last;
             };
             /^config$/ and do {
-                my @commands = ();
-                push(@commands, "filename") if $content->[0]->{filename};
-                push(@commands, "script") if $content->[0]->{script};
-                assert(@commands, "attribute 'filename' or 'script' expected!");
-                for (@commands) {
-                    push @$plan, {method=>"CONFIG", _mode=>$_, url=>$content->[0]->{$_} || ""};
-                }
+                my @mode = ();
+                push @mode, ["filename", $content->[0]->{filename} || ""] if $content->[0]->{filename};
+                push @mode, ["script"  , $content->[0]->{script  } || ""] if $content->[0]->{script};
+                my $cfg = config2entry($content);
+                push @$plan, {method => "CONFIG", property => $cfg->{property}, _mode => \@mode, url => ""};
                 last;
             };
             /^sleep$/ and do {
-                push @$plan, {method=>"SLEEP", url => $content->[0]->{value} || 1};
+                push @$plan, {method => "SLEEP", url => $content->[0]->{value} || 1};
                 last;
             };
-            assert(0, "found <$tag>, expected <plan>, <request>, <include>, <cookies>, <referrer>, <config>, <sleep>");
+            /^global-assertion$/ and do {
+                my @assert = @$content[1 .. @$content-1];
+                my $mode_src = $content->[0]->{mode} || "";
+                my $mode = $mode_src || "add";
+                assert($mode eq "new" || $mode eq "add", "<global-assertion>: found attribute mode='$mode_src', expected 'new', 'add'");
+                push @$plan, {method => "GLOBAL-ASSERTION", url => "", mode => $mode, global_assert_xml => \@assert};
+                last;
+            };
+            assert(0, "found <$tag>, expected <plan>, <request>, <include>, <cookies>, <referrer>, <config>, <sleep>, <global-assertion>");
         }
     }
     return $plan;
 }
 
 
-sub xml2entry {
+sub config2entry { # copied from request2entry, may be subject to be joined
     my ($tree) = @_;
 
     my %entry = ();
-    my $attributes = shift @$tree;
-    while (scalar @$tree) {
-        my ($tag, $content) = splice(@$tree, 0, 2);
+
+    my $attributes = $tree->[0];
+    for (my $i = 1; $i < @$tree; $i += 2) {
+        my $tag = $tree->[$i];
+        my $content = $tree->[$i+1];
+
         next if !$tag; # skip white space
-        my $attr = shift @{$content};
+        my $attr = $content->[0];
         # ??? obsolete iff CDATA->value
-        if (scalar @$content && ! $content->[0] && ! exists $attr->{value}) {
-            $attr->{value} = $content->[1];
+        my @list = @$content[1 .. @$content-1];
+        if (@list > 1 && ! $list[0] && ! exists $attr->{value}) {
+            $attr->{value} = $list[1];
+        }
+        SWITCH: foreach ($tag) {
+            /^property$/ and do {
+                foreach (qw/value/) {
+                    if ($attr->{$_}) {
+                        push @{$entry{property}}, [$_, $attr->{name}, $attr->{$_}];
+                        last;
+                    }
+                }
+                last;
+            };
+            assert(0, "found <$tag>, expected <property>");
+        }
+    }
+    return \%entry;
+}
+
+sub request2entry {
+    my ($tree) = @_;
+
+    my %entry = ();
+
+    my $attributes = $tree->[0];
+    for (my $i = 1; $i < @$tree; $i += 2) {
+        my $tag = $tree->[$i];
+        my $content = $tree->[$i+1];
+
+        next if !$tag; # skip white space
+        my $attr = $content->[0];
+        # ??? obsolete iff CDATA->value
+        my @list = @$content[1 .. @$content-1];
+        if (@list > 1 && ! $list[0] && ! exists $attr->{value}) {
+            $attr->{value} = $list[1];
         }
         SWITCH: foreach ($tag) {
             /^method$/ and do {
@@ -306,16 +348,20 @@ sub xml2entry {
                 $entry{useragent} = trim($attr->{value});
                 last;
             };
+            /^http-header$/ and do {
+                $entry{http_header}->{$attr->{name} || ""} = trim($attr->{value});
+                last;
+            };
             /^data$/ and do {
-                $entry{data} = get_data($content);
+                $entry{data} = get_data(\@list);
                 last;
             };
             /^assert$/ and do {
-                $entry{assert_xml} = $content;
+                $entry{assert_xml} = \@list;
                 last;
             };
             /^recurse$/ and do {
-                $entry{recurse_xml} = $content;
+                $entry{recurse_xml} = \@list;
                 last;
             };
             /^property$/ and do {
@@ -336,13 +382,16 @@ sub xml2entry {
 sub get_data {
     my ($list) = @_;
     my %entry = ();
-    while (scalar @$list) {
-        my ($tag, $content) = splice(@$list, 0, 2);
+
+    for (my $i = 0; $i < @$list; $i += 2) {
+        my $tag = $list->[$i];
+        my $content = $list->[$i+1];
+
         next if !$tag; # skip white space
         assert($tag eq 'parm', "<parm> expected");
-        my $attr = shift @$content;
+        my $attr = $content->[0];
         my $lhs = $attr->{name};
-        my $rhs = (defined $attr->{value}) ?  $attr->{value} : ($content->[0] ? "" : trim($content->[1]));
+        my $rhs = (defined $attr->{value}) ?  $attr->{value} : ($content->[1] ? "" : trim($content->[2]));
         $entry{$lhs} = $rhs;
     }
     return \%entry;
@@ -354,21 +403,6 @@ sub trim {
     $str =~ s/^\s+//s;
     $str =~ s/\s+$//s;
     return $str;
-}
-
-sub delete_white_space {
-    my ($tree) = @_;
-    return delete_white_space($tree->[1]) if scalar @$tree == 2; # root is special
-
-    # Note: scalar @$tree % 2 == 1
-    for (my $i = scalar @$tree; $i > 1; $i-=2) {
-        if (! $tree->[$i-2] && $tree->[$i-1] =~ m/^\s*$/s) {
-            splice(@$tree, $i-2, 2);
-        }
-        elsif (ref $tree->[$i-1]) {
-            delete_white_space($tree->[$i-1]);
-        }
-    }
 }
 
 

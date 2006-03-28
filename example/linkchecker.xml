@@ -14,7 +14,7 @@ application
         <method value='GET'/>
         <url value='{application}/welcome.do'/>
         <recurse>
-            <WebRobot.Recur.LinkChecker>
+            <WWW.Webrobot.Recur.LinkChecker>
                 <and>
                     <url value="{application}"/>
                     <scheme value="http"/>
@@ -22,17 +22,13 @@ application
                     <not><url value="logout\.do"/></not>
                     <not><url value="setUserLocale.do"/></not>
                 </and>
-            </WebRobot.Recur.LinkChecker>
+            </WWW.Webrobot.Recur.LinkChecker>
         </recurse>
         <assert>
-            <WebRobot.Assert>
-                <and>
-                    <status value='2'/>
-                    <not><regex value='Ein Fehler ist aufgetreten!'/></not>
-                    <not><regex value='ServletException'/></not>
-                    <not><regex value='ServiceException'/></not>
-                </and>
-            </WebRobot.Assert>
+            <status value='2'/>
+            <not><regex value='Ein Fehler ist aufgetreten!'/></not>
+            <not><regex value='ServletException'/></not>
+            <not><regex value='ServiceException'/></not>
         </assert>
         <description value='Linkchecking für den Shop mit Anmeldung'/>
     </request>

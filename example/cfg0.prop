@@ -15,9 +15,9 @@ names=s3www=s3www.abas.de
 
 #output=WWW::Webrobot::Print::MakeTestplan
 #output=WWW::Webrobot::Print::Text
-#output=WWW::Webrobot::Print::Test
+output=WWW::Webrobot::Print::Test
 output.1=WWW::Webrobot::Print::Html
-output=WWW::Webrobot::Print::File 'dir' => 'diff_new', 'diff_mode' => 'diff_orig'
+#output=WWW::Webrobot::Print::File 'dir' => 'diff_new', 'diff_mode' => 'diff_orig'
 #output=WWW::Webrobot::Print::File 'dir' => 'diff_orig'
 
 timeout=500

@@ -1,6 +1,8 @@
 #!/usr/bin/perl
 use strict;
 use warnings;
+use Carp;
+$SIG{__DIE__} = \&confess;
 
 use Test::More tests => 17;
 use WWW::Webrobot::Ext::XHtml::HTTP::Response;

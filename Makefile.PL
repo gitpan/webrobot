@@ -16,7 +16,7 @@ BEGIN {
 WriteMakefile(
     NAME         => 'WWW::Webrobot',
     VERSION_FROM => 'lib/WWW/Webrobot.pm', # finds $VERSION
-    AUTHOR       => 'StefanTrcek (webrobot@abas.de)',
+    AUTHOR       => 'StefanTrcek',
     ABSTRACT     => 'Automated HTTP requests - kind of batch browser',
     PREREQ_PM    => {
                      'Test::More' => 0,

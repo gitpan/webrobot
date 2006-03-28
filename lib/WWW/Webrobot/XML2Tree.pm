@@ -3,7 +3,7 @@ use strict;
 use warnings;
 
 # Author: Stefan Trcek
-# Copyright(c) 2004 ABAS Software AG
+# Copyright(c) 2004-2006 ABAS Software AG
 
 =head1 NAME
 
@@ -38,7 +38,6 @@ sub _parse0 {
     my ($self, $tree) = @_;
     unshift @$tree, {};
     _delete_white_space($tree);
-    #$self->_utf2isolatin($tree) if $has_converter;
     #use Data::Dumper; print "DUMP: ", Dumper($tree);
     return $tree;
 }
@@ -51,6 +50,7 @@ sub _delete_white_space {
     # Note: scalar @$tree % 2 == 1
     for (my $i = scalar @$tree; $i > 1; $i-=2) {
         if (! $tree->[$i-2] && $tree->[$i-1] =~ m/^\s*$/s) {
+            # ??? optimize: splice in the middle of an array may be inefficient
             splice(@$tree, $i-2, 2);
         }
         elsif (ref $tree->[$i-1]) {
@@ -59,28 +59,52 @@ sub _delete_white_space {
     }
 }
 
-#sub _utf2isolatin {
-#    my ($self, $tree) = @_;
-#    return $self->_utf2isolatin($tree->[1]) if scalar @$tree == 2; # root is special
-#
-#    # Note: scalar @$tree % 2 == 1
-#    for (my $i = scalar @$tree; $i > 1; $i-=2) {
-#        if (! $tree->[$i-2]) {
-#            $tree->[$i-1] = $self->{u2i}->($tree->[$i-1]);
-#        }
-#        elsif (ref $tree->[$i-1]) {
-#            $tree->[$i-2] = $self->{u2i}->($tree->[$i-2]); # convert tag
-#            $self->_utf2isolatin($tree->[$i-1]); # recurse (content)
-#        }
-#        else {
-#            die "NO REF";
-#        }
-#    }
-#    my $attr = $tree->[0];
-#    foreach (keys %$attr) {
-#        $attr->{$_} = $self->{u2i}->($attr->{$_});
-#    }
-#}
+
+{
+    my $s;
+
+    sub _print_xml0 {
+        my ($tree, $prefix) = @_;
+        return "" if !$tree;
+        my $p = "    " x $prefix;
+        for (my $i = 0; $i < scalar @$tree; $i += 2) {
+            my $tag = $tree->[$i];
+            my $content = $tree->[$i+1];
+            if (ref $content) {
+                my $attributes = $content->[0];
+                my $attr = "";
+                foreach (sort keys %$attributes) {
+                    my $v = $attributes->{$_};
+                    $v =~ s/'/\\'/g;
+                    $attr .= " $_='$v'";
+                }
+                my @c = @$content[1 .. scalar @$content-1];
+                if (scalar @c) {
+                    $s .= "$p<$tag$attr>\n";
+                    _print_xml0(\@c, $prefix+1);
+                    $s .= "$p</$tag>\n";
+                }
+                else {
+                    $s .= "$p<$tag$attr/>\n";
+                }
+            }
+            elsif (defined $content) { # $tag == 0
+                $content =~ s/^\s+//;
+                $content =~ s/\s+$//;
+                $s .= "$content\n";
+            }
+        }
+        return $s;
+    }
+
+    sub print_xml {
+        $s = "";
+        my ($tree) = @_;
+        _print_xml0($tree, 0);
+        return $s;
+    }
+
+}
 
 
 1;

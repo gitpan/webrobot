@@ -3,7 +3,7 @@ use strict;
 use warnings;
 
 # Author: Stefan Trcek
-# Copyright(c) 2004 ABAS Software AG
+# Copyright(c) 2004-2006 ABAS Software AG
 
 
 use HTTP::Cookies;
@@ -151,12 +151,12 @@ my %ACTION = (
     },
     HEAD => sub {
         my ($uac, $arg, $sym_tbl) = @_;
-        my %header = %{$uac->cfg->{http_header}};
+        my %header = ( %{$uac->cfg->{http_header}}, %{$arg->{http_header}} );
         return norm_response($uac -> ua -> request($uac->norm_request(HEAD($arg->{url}, %header))));
     },
     GET => sub {
         my ($uac, $arg, $sym_tbl) = @_;
-        my %header = %{$uac->cfg->{http_header}};
+        my %header = ( %{$uac->cfg->{http_header}}, %{$arg->{http_header}} );
         my $data = convert_data($uac, $arg->{data});
         my $url = $arg->{url};
         if ($data && scalar keys %$data) {
@@ -168,13 +168,13 @@ my %ACTION = (
     },
     POST => sub {
         my ($uac, $arg, $sym_tbl) = @_;
-        my %header = %{$uac->cfg->{http_header}};
+        my %header = ( %{$uac->cfg->{http_header}}, %{$arg->{http_header}} );
         my $data = convert_data($uac, $arg->{data});
         return norm_response($uac -> ua -> request($uac->norm_request(POST($arg->{url}, $data, %header))));
     },
     PUT => sub {
         my ($uac, $arg, $sym_tbl) = @_;
-        my %header = %{$uac->cfg->{http_header}};
+        my %header = ( %{$uac->cfg->{http_header}}, %{$arg->{http_header}} );
         return norm_response($uac -> ua -> request($uac->norm_request(PUT($arg->{url}, $arg->{data}, %header))));
     },
     COOKIES => sub {
@@ -232,32 +232,35 @@ my %ACTION = (
     CONFIG => sub {
         my ($uac, $arg, $sym_tbl) = @_;
         eval {
-            SWITCH: foreach ($arg->{_mode}) {
-                /^filename$/ || /^script$/ and do {
-                    my $filename = $arg->{url};
-                    $filename .= " |" if /^script$/;
-                    my $err_msg = /^script$/ ? "Can't start script" : "Can't read file";
+            foreach my $tmp (@{$arg->{_mode}}) {
+                my ($mode, $parm) = @$tmp;
+                SWITCH: foreach ($mode) {
+                    /^filename$/ || /^script$/ and do {
+                        my $filename = $parm;
+                        $filename .= " |" if /^script$/;
+                        my $err_msg = /^script$/ ? "Can't start script" : "Can't read file";
 
-                    my $handle = do {local *FH; *FH};
-                    { # 'open' produces a warning if the shell script doesn't exist!
-                        no warnings;
-                        open $handle, "$filename" or die "$err_msg: '$arg->{url}'";
-                    }
-                    my $new_variables = WWW::Webrobot::Properties -> new() -> load_handle($handle) or
-                        die "Can't read data from external program '$arg->{url}'";
-                    my @new_vars = map { [$_, $new_variables->{$_} || ""] } sort keys %$new_variables;
-                    $arg->{new_properties} = \@new_vars;
-                    foreach (keys %$new_variables) {
-                        $sym_tbl->define_symbol($_, $new_variables->{$_});
-                    }
-                    close $handle;
-                    last;
-                };
-                die "found $_ in \$arg->{_mode}, expected 'filename', 'script'";
+                        my $handle = do {local *FH; *FH};
+                        { # 'open' produces a warning if the shell script doesn't exist!
+                            no warnings;
+                            open $handle, "$filename" or die "$err_msg: '$parm'";
+                        }
+                        my $new_variables = WWW::Webrobot::Properties -> new() -> load_handle($handle) or
+                            die "Can't read data from external program '$parm'";
+                        my @new_vars = map { [$_, $new_variables->{$_} || ""] } sort keys %$new_variables;
+                        $arg->{new_properties} = \@new_vars;
+                        foreach (keys %$new_variables) {
+                            $sym_tbl->define_symbol($_, $new_variables->{$_});
+                        }
+                        close $handle;
+                        last SWITCH;
+                    };
+                    die "found $_ in \$arg->{_mode}, expected 'filename', 'script'";
+                }
             }
         };
         my $err = $@;
-        $arg->{assert} = new WWW::Webrobot::AssertConstant($err, $err ? "0 $err" : undef);
+        $arg->{assert} = new WWW::Webrobot::AssertConstant($err, $err ? ["0 $err"] : []);
         return undef;
     },
     SLEEP => sub {
@@ -265,12 +268,26 @@ my %ACTION = (
         sleep($arg->{url});
         return undef;
     },
+    "GLOBAL-ASSERTION" => sub {
+        # This is the definition of the global assertion.
+        # It has to be stored which has already been done,
+        # so there is nothing to do.
+
+        #my ($uac, $arg, $sym_tbl) = @_;
+        return undef;
+    },
 );
 
 sub check_assertion {
-    my ($r, $assert) = @_;
-    my ($fail, $fail_str) = $assert -> check($r);
-    return ($fail, $fail_str);
+    my ($r, $all_assert) = @_;
+    my $all_fail = 0;
+    my @tmp = ();
+    foreach my $assert (@$all_assert) {
+        my ($fail, $fail_str) = $assert -> check($r);
+        $all_fail = 1 if $fail;
+        push @tmp, @$fail_str;
+    }
+    return ($all_fail, \@tmp);
 }
 
 
@@ -307,15 +324,15 @@ sub treat_single_url {
 
     # check result
     if ($self -> {_ua} -> is_redirect_fail()) {
-        $fail = 0;
+        ($fail, $fail_str) = (0, []);
     }
     elsif ($exception) {
         $r = undef;
-        ($fail, $fail_str) = (2, "2 CALL TO METHOD '$arg->{method}', URL '$arg->{url}' FAILED: $exception");
+        ($fail, $fail_str) = (2, ["2 CALL TO METHOD '$arg->{method}', URL '$arg->{url}' FAILED: $exception"]);
     }
-    elsif (! defined $arg->{assert}) {
+    elsif (! $r || ! defined $arg->{assert}) {
         # Method like COOKIES that don't support assertions
-        ($fail, $fail_str) = (0, undef);
+        ($fail, $fail_str) = (undef, []);
     }
     else {
         ($fail, $fail_str) = check_assertion($r, $arg->{assert});
@@ -331,7 +348,6 @@ sub treat_single_url {
     }
     $self->encoding($coding);
 
-    #if (!$fail && $arg->{property}) {
     if ($arg->{property}) {
         # evaluate new names
         my @new_vars = ();

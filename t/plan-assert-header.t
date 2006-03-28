@@ -1,6 +1,8 @@
 #!/usr/bin/perl -w
 use strict;
 use warnings;
+use Carp;
+$SIG{__DIE__} = \&confess;
 
 use WWW::Webrobot::SelftestRunner qw(RunTestplan HttpdEcho Config);
 
@@ -11,16 +13,11 @@ my $test_plan = <<'EOF';
 
     <request>
         <method value='GET'/>
-        <url value='${application}/url/${_id}'/>
+        <url value='${application}/constant_html_0'/>
         <assert>
-            <WWW.Webrobot.Assert>
-                <and>
-                    <status value='200'/>
-                    <regex value='^/url/1$'/>
-                </and>
-            </WWW.Webrobot.Assert>
+            <header name="Content-type" value="text/html"/>
+            <not><header name="xxx" value="bla"/></not>
         </assert>
-        <description value="A single webrobot process must have the _id property set to '1'"/>
     </request>
 
 </plan>

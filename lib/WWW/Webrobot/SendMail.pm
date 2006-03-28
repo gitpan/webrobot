@@ -5,44 +5,37 @@ use warnings;
 # Author: Stefan Trcek
 # Copyright(c) 2004 ABAS Software AG
 
+use MIME::Lite;
+
 
 sub send_mail {
-    my ($mail, $exit) = @_;
+    my ($mail) = @_;
+    return 1 if !$mail;
 
-    $mail = {} if ! $mail;
-    my $mail_cond = $mail -> {condition} || "never";
-    return 0 if $mail_cond eq "never";
-
-    require MIME::Lite;
-    if ($mail_cond eq "ever" || $exit && $mail_cond eq "fail" || !$exit && $mail_cond eq "success") {
-        my $server = $mail -> {server} or die "No mail server given";
-        my $timeout = $mail -> {timeout} || 60;
-        my %parm = ( %$mail );
-        delete @parm{qw(condition server timeout)};
-        my $msg = MIME::Lite -> new(%parm);
-        my $msg_to = $msg->get("to");
-        my $msg_cc = $msg->get("cc");
-        my $msg_bcc = $msg->get("bcc");
-        foreach (@{$mail->{Attach}}) {
-            my ($mime, $filename) = @$_;
-            $mime ||= "application/octet-stream";
-            $msg->attach(Type=>$mime, Path=>$filename);
-        }
-        MIME::Lite -> send('smtp', $server, Timeout=>$timeout);
-        eval { $msg -> send() };
-        if ($@) {
-            print STDERR "Can't send mail: $@";
-            return $@;
-        }
-        else {
-            print STDERR "Sending mail",
-                $msg_to  ? " to: $msg_to" : "",
-                $msg_cc  ? " cc: $msg_cc" : "",
-                $msg_bcc ? " bcc: $msg_bcc" : "", "\n";
-            return 0;
-        }
+    my $server = $mail -> {server} or die "No mail server given";
+    my $timeout = $mail -> {timeout} || 60;
+    my %parm = ( %$mail );
+    delete @parm{qw(condition server timeout)};
+    my $msg = MIME::Lite -> new(%parm);
+    my $msg_to = $msg->get("to");
+    my $msg_cc = $msg->get("cc");
+    my $msg_bcc = $msg->get("bcc");
+    foreach (@{$mail->{Attach}}) {
+        my ($mime, $filename) = @$_;
+        $mime ||= "application/octet-stream";
+        $msg->attach(Type=>$mime, Path=>$filename);
+    }
+    MIME::Lite -> send('smtp', $server, Timeout=>$timeout);
+    eval { $msg -> send() };
+    if ($@) {
+        print STDERR "Can't send mail: $@";
+        return $@;
     }
     else {
+        print STDERR "Sending mail",
+            $msg_to  ? " to: $msg_to" : "",
+            $msg_cc  ? " cc: $msg_cc" : "",
+            $msg_bcc ? " bcc: $msg_bcc" : "", "\n";
         return 0;
     }
 }
@@ -56,7 +49,7 @@ WWW::Webrobot::SendMail - simple wrapper for sending mail
 
 =head1 SYNOPSIS
 
- WWW::Webrobot::SendMail::send_mail($mailconfig, $exit);
+ WWW::Webrobot::SendMail::send_mail($mailconfig);
 
 =head1 DESCRIPTION
 
@@ -72,9 +65,8 @@ Uses L<MIME::Lite>.
 
 Function to send mail
 
- my $mail = {
-        condition => 'never', # 'fail' (default), 'success', 'never', 'ever'
-        server    => "sgate.s3.abas.de", # mandatory
+ my $mailconfig = {
+        server    => "somesever.yourdomain.org", # mandatory
         timeout   => 60, # default=60
 
         # fields for MIME::Lite, ignores case on left hand side
@@ -94,6 +86,11 @@ Function to send mail
  EOF
 
 C<$exit> acts as an error state thats compared to $mail->{condition}
+
+Return value:
+
+ 0:       Mail has been sent. Note that doesn't mean that the mail can be delivered.
+ not 0:   Mail can't be sent (e.g. wrong mail server)
 
 =back
 

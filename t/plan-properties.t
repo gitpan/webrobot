@@ -1,6 +1,8 @@
 #!/usr/bin/perl -w
 use strict;
 use warnings;
+use Carp;
+$SIG{__DIE__} = \&confess;
 
 use WWW::Webrobot::SelftestRunner qw(RunTestplan HttpdEcho Config);
 
@@ -16,8 +18,10 @@ my $test_plan = <<'EOF';
 <plan>
 
     <config script="perl -w t/properties/runtime-config.pl">
-        <description value="define the properties 'login' and 'password'"/>
     </config>
+    <!--
+        <description value="define the properties 'login' and 'password'"/>
+    -->
 
     <request>
         <method value='GET'/>

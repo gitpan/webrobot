@@ -30,8 +30,8 @@ sub new {
 
 sub check {
     my ($self, $r) = @_;
-    return undef if !defined $r;
-    return (200 <= $r->{_rc} && $r->{_rc} < 300) ? 0 : 1;
+    return (undef, []) if !defined $r;
+    return (200 <= $r->{_rc} && $r->{_rc} < 300) ? (0, []) : (1, []);
 }
 
 

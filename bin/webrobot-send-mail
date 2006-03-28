@@ -5,38 +5,39 @@ use warnings;
 # Author: Stefan Trcek
 # Copyright(c) 2004 ABAS Software AG
 
-use CGI qw(:standard -no_xhtml);
 #use diagnostics
 
+use Getopt::Long;
 use WWW::Webrobot;
 use WWW::Webrobot::SendMail;
-use WWW::Webrobot::CGIHelper;
 
 
 my $USAGE = <<EOF;
 USAGE: webrobot [options]
--h              this message
--v              version
-All other options are written 'option_name=value_of_option'.
-option           description
-------------------------------------------------------------------------
-cfg              test configuration [mandatory], must end in '.prop'
+--help                 this message
+--version              version
+--cfg config           (mandatory) test configuration
+--define name=value    define additional properties
+                       (like the one in the config file)
 EOF
 
-my ($p1, $other) = @ARGV;
-$p1 ||= "";
-do {print $USAGE; exit} if $p1 =~ /^-(-)?h(elp)?$/i;
-
-my $cgi = CGI -> new();
-my $cfg_name = $cgi->param('cfg') or die "No configuration file defined!";
-my $test_plan_name = $cgi->param('testplan');
+my $cfg_name;
+my $testplan_name;
+my %properties = ();
+GetOptions(
+           help => sub {print $USAGE; exit},
+           version => sub {print "Webrobot version: $WWW::Webrobot::VERSION\n"; exit},
+           "cfg=s" => \$cfg_name,
+           "define=s" => \%properties,
+          ) || die $USAGE;
 
 MAIN: {
-    my $cmd_param = WWW::Webrobot::CGIHelper::param2list($cgi, [qw(cfg testplan)]);
-    # conditionally send mail
-    my $webrobot = WWW::Webrobot -> new(\$cfg_name, $cmd_param);
-    $webrobot->cfg()->{mail}->{condition} = "ever";
-    WWW::Webrobot::SendMail::send_mail($webrobot->cfg()->{mail}, 1);
+    my @cmd_param = map { [$_, $properties{$_}] } keys %properties;
+    my $webrobot = WWW::Webrobot -> new(\$cfg_name, \@cmd_param);
+    $webrobot->{cfg}->{output} = []; # ??? Hier sollte der Import von Test::More verhindert werden.
+    my $exit = WWW::Webrobot::SendMail::send_mail($webrobot->cfg()->{mail});
+    print STDERR $exit if $exit;
+    exit 1 if $exit;
 }
 
 1;
@@ -47,7 +48,7 @@ webrobot-send-mail - send mail
 
 =head1 SYNOPSIS
 
- webrobot-send-mail cfg=example/cfg.prop
+ webrobot-send-mail --cfg example/cfg.prop
 
 =head1 DESCRIPTION
 
@@ -56,10 +57,24 @@ It takes one mandatory parameter.
 
 =over
 
-=item cfg
+=item --help
+
+Display this help.
+
+=item --version
+
+Print the version number.
+It is taken from WWW::Webrobot.pm
+
+=item --cfg config_filename
 
 This is the configuration file,
 see L<WWW::Webrobot::pod::Config>.
+
+=item --define property=value
+
+Define some property/value pairs.
+This overwrites properties defined in the config file.
 
 =back
 

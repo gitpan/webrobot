@@ -5,45 +5,50 @@ use warnings;
 # Author: Stefan Trcek
 # Copyright(c) 2004 ABAS Software AG
 
-use CGI qw(:standard -no_xhtml);
+BEGIN {
+    die "Operating system '$^O' not supported" if $^O eq "MSWin32";
+}
+
+use Getopt::Long;
 use Time::HiRes;
 use WWW::Webrobot::WebrobotLoad;
 use WWW::Webrobot::StatisticSummary;
-use WWW::Webrobot::CGIHelper;
 
 
 my $USAGE = <<EOF;
-USAGE: webrobot-load [options]
--h              this message
--v              version
-All other options are written 'option_name=value_of_option'.
-option           description
-------------------------------------------------------------------------
-cfg              test configuration [mandatory], must end in '.prop'
-testplan         overwrite 'testplan' in cfg
-<property>       set property
+USAGE: webrobot [options]
+--help                 this message
+--version              version
+--cfg config           (mandatory) test configuration
+--testplan testplan    (mandatory) test plan file name
+--define name=value    define additional properties
+                       (like the one in the config file)
 
 BUG: This program will probably work on unixoid systems only.
 EOF
 
-my ($p1, $other) = @ARGV;
-$p1 ||= "";
-do {print $USAGE; exit} if $p1 =~ /^-(-)?h(elp)?$/i;
-do {print "Webrobot version: $WWW::Webrobot::VERSION\n"; exit} if $p1 =~ /^-(-)?v(ersion)?$/i;
-
-my $cgi = CGI -> new();
-my $cfg_name = $cgi->param('cfg') or die "No configuration file defined!";
-my $testplan_name = $cgi->param('testplan');
-
+my $cfg_name;
+my $testplan_name;
+my %properties = ();
+GetOptions(
+           help => sub {print $USAGE; exit},
+           version => sub {print "Webrobot version: $WWW::Webrobot::VERSION\n"; exit},
+           "cfg=s" => \$cfg_name,
+           "testplan=s" => \$testplan_name,
+           "define=s" => \%properties,
+          ) || die $USAGE;
 
 MAIN: {
-    my $cmd_param = WWW::Webrobot::CGIHelper::param2list($cgi, [qw(cfg testplan)]);
-    push @$cmd_param, ["output", "WWW::Webrobot::Print::ChildSend"];
-    my $wrl = WWW::Webrobot::WebrobotLoad->new(\$cfg_name, $cmd_param);
+    my @cmd_param = map { [$_, $properties{$_}] } keys %properties;
+    push @cmd_param, ["output", "WWW::Webrobot::Print::ChildSend"];
+
+    my $wrl = WWW::Webrobot::WebrobotLoad->new(\$cfg_name, \@cmd_param);
 
     # start processes
     my ($sec, $usec) = Time::HiRes::gettimeofday();
-    my ($statistic, $histogram, $url_statistic, $http_errcode, $assert_ok) = $wrl -> run(\$testplan_name);
+    my ($statistic, $histogram, $url_statistic, $http_errcode, $assert_ok, $all_exit_status) =
+        $wrl -> run(\$testplan_name);
+    
     my $elaps = Time::HiRes::tv_interval([$sec, $usec], [ Time::HiRes::gettimeofday() ]);
     $statistic->{total_time} = $elaps;
 
@@ -76,8 +81,11 @@ MAIN: {
     print "Written to ", join(" ", @written_to), "\n" if @written_to;
 
     wait;
-    #exit $exit;
-    exit 0;
+
+    my @exit = grep {$_} values %$all_exit_status;
+    my $exit_status = scalar @exit ? 1 : 0;
+
+    exit $exit_status;
 }
 
 
@@ -102,17 +110,29 @@ both are mandatory:
 
 =over
 
-=item cfg
+=item --help
+
+Display this help.
+
+=item --version
+
+Print the version number.
+It is taken from WWW::Webrobot.pm
+
+=item --cfg config_filename
 
 This is the configuration file,
 see L<WWW::Webrobot::pod::Config>.
-Note that there are some special parameter
-for C<webrobot-load> only.
 
-=item testplan
+=item --testplan testplan_filename
 
 This is the testplan to run,
 see L<WWW::Webrobot::pod::Testplan>.
+
+=item --define property=value
+
+Define some property/value pairs.
+This overwrites properties defined in the config file.
 
 =back
 

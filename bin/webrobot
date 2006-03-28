@@ -5,49 +5,39 @@ use warnings;
 # Author: Stefan Trcek
 # Copyright(c) 2004 ABAS Software AG
 
-use CGI qw(:standard -no_xhtml);
 #use diagnostics
 #$SIG{__DIE__} = \&Carp::confess;
 #$SIG{__WARN__} = \&Carp::cluck;
 
+use Getopt::Long;
 use WWW::Webrobot;
-use WWW::Webrobot::SendMail;
-use WWW::Webrobot::CGIHelper;
 
 
 my $USAGE = <<EOF;
 USAGE: webrobot [options]
--h              this message
--v              version
-All other options are written 'option_name=value_of_option'.
-option           description
-------------------------------------------------------------------------
-cfg              test configuration [mandatory], must end in '.prop'
-testplan         overwrite 'testplan' in cfg
-<property>       set property
+--help                 this message
+--version              version
+--cfg config           (mandatory) test configuration
+--testplan testplan    (mandatory) test plan file name
+--define name=value    define additional properties
+                       (like the one in the config file)
 EOF
 
-my ($p1, $other) = @ARGV;
-$p1 ||= "";
-do {print $USAGE; exit} if $p1 =~ /^-(-)?h(elp)?$/i;
-do {print "Webrobot version: $WWW::Webrobot::VERSION\n"; exit} if $p1 =~ /^-(-)?v(ersion)?$/i;
-
-my $cgi = CGI -> new();
-my $cfg_name = $cgi->param('cfg') or die "No configuration file defined!";
-my $test_plan_name = $cgi->param('testplan');
+my $cfg_name;
+my $testplan_name;
+my %properties = ();
+GetOptions(
+           help => sub {print $USAGE; exit},
+           version => sub {print "Webrobot version: $WWW::Webrobot::VERSION\n"; exit},
+           "cfg=s" => \$cfg_name,
+           "testplan=s" => \$testplan_name,
+           "define=s" => \%properties,
+          ) || die $USAGE;
 
 MAIN: {
-    my $cmd_param = WWW::Webrobot::CGIHelper::param2list($cgi, [qw(cfg testplan)]);
-    my $webrobot = WWW::Webrobot -> new(\$cfg_name, $cmd_param);
-    my $exit = $webrobot -> run(\$test_plan_name);
-
-    # flush output, because attachments for send_mail
-    # may be these handles redirected output
-    close STDOUT;
-    close STDERR;
-
-    # conditionally send mail
-    WWW::Webrobot::SendMail::send_mail($webrobot->cfg()->{mail}, $exit);
+    my @cmd_param = map { [$_, $properties{$_}] } keys %properties;
+    my $webrobot = WWW::Webrobot -> new(\$cfg_name, \@cmd_param);
+    my $exit = $webrobot -> run(\$testplan_name);
 
     exit $exit;
 }
@@ -60,7 +50,7 @@ webrobot - run a testplan
 
 =head1 SYNOPSIS
 
- webrobot cfg=example/cfg.prop testplan=example/testplan.xml
+ webrobot --cfg example/cfg.prop --testplan example/testplan.xml
 
 =head1 DESCRIPTION
 
@@ -70,15 +60,29 @@ both are mandatory:
 
 =over
 
-=item cfg
+=item --help
+
+Display this help.
+
+=item --version
+
+Print the version number.
+It is taken from WWW::Webrobot.pm
+
+=item --cfg config_filename
 
 This is the configuration file,
 see L<WWW::Webrobot::pod::Config>.
 
-=item testplan
+=item --testplan testplan_filename
 
 This is the testplan to run,
 see L<WWW::Webrobot::pod::Testplan>.
+
+=item --define property=value
+
+Define some property/value pairs.
+This overwrites properties defined in the config file.
 
 =back
 

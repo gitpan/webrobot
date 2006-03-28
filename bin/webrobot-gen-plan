@@ -10,12 +10,15 @@ use CGI;
 my $USAGE = <<'EOF';
 USAGE: webrobot-gen-plan [options] [files]
 Options:
--help               give help
--prefix=path        Prefixes any url with path
--encode=url         encode url values according CGI (%xx notion)
+--help              give help
+--prefix=path       Prefixes any url with path
+--encode=url        encode url values according CGI (%xx notion)
         data        encode form data values according CGI (%xx notion)
--output=xml         (default) output testplan in WebRobot xml format
+--output=xml        (default) output testplan in WebRobot xml format
         text        output in simple text format (filter)
+--data              (default) Parameters in GET will be shown as <data>
+                    section (as in POST)
+--nodata            Parameters in GET are untouched
 EOF
 
 my $USAGE_EXTENDED = $USAGE . <<'EOF';
@@ -24,7 +27,7 @@ Converts line based testplans to xml testplans.
 
 >>> FORMAT
         [protocol] url [data] (regular_expressions)*
-protocoll:
+protocol:
         GET | POST | HEAD | PUT | DELETE
 url:
         check this url, -prefix is prepended
@@ -47,24 +50,28 @@ EOF
 my $prefix;
 my @encode = ();
 my $output = "xml";
+my $get_data = 1;
+
 GetOptions(
            help => sub {print $USAGE_EXTENDED; exit},
            "prefix=s" => \$prefix,
            "encode=s" => \@encode,
            "output=s" => \$output,
+           "data!" => \$get_data,
           ) || die $USAGE;
 my %encode = map {$_ => 1} @encode;
 my %METHOD = map {$_ => 1} qw(GET HEAD POST DELETE PUT); # ignore TRACE CONNECT
 
 MAIN: {
     my $i = 0;
-    print "<plan>\n" if $output eq "xml";
+    print qq{<?xml version="1.0" encoding="ISO-8859-1"?>\n}, "<plan>\n\n" if $output eq "xml";
 
     while (<>) {
         chomp;
         s/^\s+//;
+        s/\s+$//;
         next if /^#/ || /^$/;
-        my ($method, $url, $data, $assert) = split_line($_);
+        my ($method, $url, $data, $assert) = split_line($_, $get_data);
         $url = $prefix . $url if defined $prefix;
 
         if ($encode{url}) {
@@ -72,20 +79,18 @@ MAIN: {
             if ($ende) {
                 $ende = join "&",
                     map {"$_->[0]=$_->[1]"}
-                        map {[ CGI::escape($_->[0]), CGI::escape($_->[1]) ]}
-                            cgi_parse($ende);
+                    map {[ CGI::escape($_->[0]), CGI::escape($_->[1]) ]}
+                    cgi_parse($ende);
             }
             $url = "$start";
             $url .= "?$ende" if defined $ende;
         }
-        if ($encode{data}) {
-            if ($data) {
-                my @list = cgi_parse($data);
-                $data = join "&",
-                    map {"$_->[0]=$_->[1]"}
-                        map {[ CGI::escape($_->[0]), CGI::escape($_->[1]) ]}
-                            @list;
-            }
+        if ($encode{data} && $data) {
+            my @list = cgi_parse($data);
+            $data = join "&",
+                map {"$_->[0]=$_->[1]"}
+                map {[ CGI::escape($_->[0]), CGI::escape($_->[1]) ]}
+                @list;
         }
 
         if ($output eq "text") {
@@ -105,20 +110,22 @@ MAIN: {
                 $xml .= "<data>\n$parameter</data>\n";
             }
             if ($assert && @$assert) {
-                $xml .= qq{<assert>\n<WWW.Webrobot.Assert>\n<and>\n<status value="2"/>\n};
-                $xml .= join "", map {qq{<regex value="$_"/>\n}} @$assert;
-                $xml .= "</and>\n</WWW.Webrobot.Assert>\n</assert>\n";
+                $xml .= qq{<assert>\n};
+                $xml .= qq{    <status value="2"/>\n};
+                $xml .= join "", map {qq{    <regex value="$_"/>\n}} @$assert;
+                $xml .= "</assert>\n";
             }
             $url = html_encode($url) if $output eq "xml";
             (my $comment_url = $_) =~ s/-+/-/g;
+            $xml =~ s/^/    /gm if $xml;
             print <<EOF;
 <request>
     <!-- $comment_url -->
     <method value="$method"/>
     <url value="$url"/>
     <description value="$i"/>
-$xml\
-</request>
+$xml</request>
+
 EOF
         }
         $i++;
@@ -129,14 +136,17 @@ EOF
 
 
 sub split_line {
-    my ($line) = @_;
+    my ($line, $get_data) = @_;
+
     my ($method, $rest) = split /\s+/, $_, 2;
-    # insert missing GET
-    ($method, $rest) = ("GET", $method) if ! $METHOD{$method};
+    ($method, $rest) = ("GET", $method) if ! $METHOD{$method}; # insert missing GET
     (my $url, $rest) = split /\s+/, $rest, 2;
     my $data;
     if ($method eq "POST") {
         ($data, $rest) = split /\s+/, $rest, 2;
+    }
+    elsif ($method eq "GET" && $get_data) {
+        ($url, $data) = split /\?/, $url, 2;
     }
     my @assert = split /\s+/, ($rest || "");
     return ($method, $url, $data, \@assert);

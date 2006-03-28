@@ -1,6 +1,8 @@
 #!/usr/bin/perl -w
 use strict;
 use warnings;
+use Carp;
+$SIG{__DIE__} = \&confess;
 
 # The encoding of HTML::TreeBuilder is different on different operating systems.
 # If this test fails many other tests will fail, too.

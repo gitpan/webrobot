@@ -3,13 +3,15 @@ use strict;
 use warnings;
 
 # Author: Stefan Trcek
-# Copyright(c) 2004 ABAS Software AG
+# Copyright(c) 2004-2006 ABAS Software AG
 
+use UNIVERSAL;
 use File::Path;
 use WWW::Webrobot::Global;
 use WWW::Webrobot::Ext::General::HTTP::Response;
 use WWW::Webrobot::XHtml;
 use WWW::Webrobot::HttpErrcode;
+use WWW::Webrobot::XML2Tree;
 
 
 
@@ -277,34 +279,42 @@ EOF
     }
 
     # print assertions
-    if (my $fail_out = $arg->{fail_str}) {
-        $fail_out = [ $fail_out ] if ! ref $fail_out;
-        s/</&lt;/g foreach (@$fail_out);
-        my @bool = qw(false true);
-        my @failed = map {
-            $_->[0] = $bool[$_->[0]] || $_->[0];
-            $_
-        } map {
-            [ split(/\s+/, $_, 2) ]
-        } @$fail_out;
-        print {$PLANDATA} pr_table("Predicates", [], \@failed, alter_colors());
-        print $PLANDATA "<br>\n";
-    }
+    my $fail_out = $arg->{fail_str};
+    $fail_out = [ $fail_out ] if ! ref $fail_out;
+    my @bool = qw(false true);
+    my @failed = map {
+        $_->[0] = $bool[$_->[0]] || $_->[0];
+        $_
+    } map {
+        (my $tmp = $_) =~ s/</&lt;/g;
+        [ split(/\s+/, $tmp, 2) ]
+    } @$fail_out;
+
+    print {$PLANDATA} "<table border='0'>\n";
+    print {$PLANDATA} "<tr><td valign='top'>\n", print_assert_xml("Define global assertion", $arg->{global_assert_xml}), "</td>\n" if $arg->{global_assert_xml};
+    print {$PLANDATA} "<tr><td valign='top'>\n", pr_table("Predicates", [], \@failed, alter_colors()), "</td>\n";
+    print {$PLANDATA} "<tr><td valign='top'>\n", print_assert_xml("Assertion (parsed source)", $_), "</td>\n" foreach(@{$arg->{assert_xml}});
+    print {$PLANDATA} "</table>\n";
 
     # print xpath expressions
-    # ??? this is a hack as it makes use of internal data structures of $arg->{assert}
-    if (my $postfix = ((($arg -> {assert} || {}) -> {evaluator} || {}) -> {postfix} || [])) {
-        my @xpath = ();
-        foreach (@$postfix) {
-            next if ref $_ ne 'ARRAY';
-            my ($predicate, $parm) = @$_;
-            next if $predicate ne 'xpath';
-            my $xpath_expr = $parm->[0]->{xpath};
-            (my $xpath_result = $r->xpath($xpath_expr)) =~ s/\n/<br>/g;
-            push @xpath, [$xpath_expr, $xpath_result];
+    my $assert = $arg->{assert};
+    if (UNIVERSAL::isa($assert, "WWW::Webrobot::Assert")) {
+        my $postfix = (($arg -> {assert} || {}) -> {evaluator} || {}) -> {postfix} || [];
+        if ($postfix && scalar @$postfix) {
+            my @xpath = ();
+            foreach (@$postfix) {
+                next if ref $_ ne 'ARRAY';
+                my ($predicate, $parm) = @$_;
+                next if $predicate ne 'xpath';
+                my $xpath_expr = $parm->[0]->{xpath};
+                (my $xpath_result = $r->xpath($xpath_expr)) =~ s/\n/<br>/g;
+                push @xpath, [$xpath_expr, $xpath_result];
+            }
+            if (@xpath) {
+                print {$PLANDATA} pr_table("XPath expressions", ["XPath", "Value"], \@xpath, alter_colors());
+                print $PLANDATA "<br>\n";
+            }
         }
-        print {$PLANDATA} pr_table("XPath expressions", ["XPath", "Value"], \@xpath, alter_colors());
-        print $PLANDATA "<br>\n";
     }
 
     # print variables that have been defined in this entry
@@ -582,6 +592,18 @@ sub pr_table {
     }
     $ret .= "</table>\n";
     return $ret;
+}
+
+
+sub print_assert_xml {
+    my ($title, $assert_xml_parm) = @_;
+    my $xml = WWW::Webrobot::XML2Tree::print_xml($assert_xml_parm);
+    my @assert_html = map {
+        $_ = encode_text($_);
+        s/ /&nbsp;/g;
+        [ "$_" ]
+    } split /\n/, $xml;
+    return pr_table($title, [], \@assert_html, alter_colors());
 }
 
 

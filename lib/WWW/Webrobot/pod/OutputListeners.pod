@@ -98,13 +98,10 @@ B<$index> is the index to be updated.
 
 =over
 
-=item L<WWW::Webrobot::Print::Text>
-
-This listener produces output as plain text on STDOUT.
-
 =item L<WWW::Webrobot::Print::Test>
 
 This listener produces output for L<Test::Harness> on STDOUT.
+Preferred listener for terminal output.
 
 =item L<WWW::Webrobot::Print::Html>
 
@@ -116,6 +113,11 @@ No output to STDOUT.
 This is the only one that supports C<item_post_change>.
 
 =end comment
+
+=item L<WWW::Webrobot::Print::Text>
+
+This listener produces output as plain text on STDOUT.
+Still working but no longer maintained, use L<WWW::Webrobot::Print::Test> instead.
 
 =item L<WWW::Webrobot::Print::File>
 

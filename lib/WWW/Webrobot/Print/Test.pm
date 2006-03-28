@@ -3,10 +3,11 @@ use strict;
 use warnings;
 
 # Author: Stefan Trcek
-# Copyright(c) 2004 ABAS Software AG
+# Copyright(c) 2004-2006 ABAS Software AG
 
 
 use WWW::Webrobot::Util qw/textify/;
+use WWW::Webrobot::XML2Tree;
 use Test::More qw/no_plan/;
 
 
@@ -17,12 +18,11 @@ sub new {
 }
 
 sub global_start {
-    #my $self = shift;
+    #my ($self) = @_;
 }
 
 sub item_pre {
-    #my $self = shift;
-    #my ($arg) = @_;
+    #my ($self, $arg) = @_;
 }
 
 sub responses {
@@ -43,21 +43,31 @@ sub item_post {
     my $data = $arg->{data};
     my $out_ok = "$arg->{method} $arg->{url}";
     $out_ok .= " '$_'=>'$data->{$_}'" foreach (keys %$data);
-    my $tmp = $arg->{fail_str};
-    my $fail_str = (ref $tmp eq 'ARRAY') ? join("\n", @$tmp) : $tmp || "";
     if (! ok(! $arg->{fail}, textify $out_ok)) {
         diag " "x4 . textify "Request:     $arg->{method} $arg->{url}";
+
         diag " "x4 . textify "Description: $arg->{description}";
         if ($data && scalar keys %$data) {
             diag " "x4 . textify "Data:";
             diag " "x8 . textify "'$_' => '$data->{$_}'" foreach (keys %$data);
         }
-        diag textify " "x4 . "Assertions:  " . bool_assert($arg->{fail});
-        if (my $s = $fail_str) {
-            $s =~ s/^(.)/ bool($1) /gme;
+
+        diag textify " "x4 . "Predicates:  " . bool_assert($arg->{fail});
+        foreach (@{$arg->{fail_str}}) {
+            my $s = $_; # don't change the source
+            $s =~ s/^(.)/ bool($1) /ge;
             $s =~ s/^/        /gm;
             diag textify $s;
         }
+
+        if ($arg->{assert_xml}) {
+            foreach my $assert (@{$arg->{assert_xml}}) {
+                my $xml = WWW::Webrobot::XML2Tree::print_xml($assert);
+                diag " "x4 . textify "Expression of the assertion in this request:";
+                diag " "x8 . textify $_ foreach (split /\n/, $xml);
+            }
+        }
+
         diag " "x4 . textify "Responses:";
         diag textify($_) foreach (responses($r));
         if ($arg->{new_properties}) {
