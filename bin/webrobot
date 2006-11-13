@@ -36,7 +36,9 @@ GetOptions(
 
 MAIN: {
     my @cmd_param = map { [$_, $properties{$_}] } keys %properties;
-    my $webrobot = WWW::Webrobot -> new(\$cfg_name, \@cmd_param);
+    my $webrobot = defined $cfg_name
+        ? WWW::Webrobot -> new(\$cfg_name, \@cmd_param)
+        : WWW::Webrobot -> new("output=WWW::Webrobot::Print::Test\n", \@cmd_param);
     my $exit = $webrobot -> run(\$testplan_name);
 
     exit $exit;
@@ -73,6 +75,7 @@ It is taken from WWW::Webrobot.pm
 
 This is the configuration file,
 see L<WWW::Webrobot::pod::Config>.
+This parameter is optional and will do a standard test output if missing.
 
 =item --testplan testplan_filename
 

@@ -5,7 +5,7 @@ use warnings;
 # Author: Stefan Trcek
 # Copyright(c) 2004-2006 ABAS Software AG
 
-*VERSION = \'0.80';
+*VERSION = \'0.81';
 
 use Carp;
 use WWW::Webrobot::Properties;

@@ -133,6 +133,7 @@ sub run {
                     description => $entry->{description},
                     assert => $entry->{assert},
                     global_assert => $entry->{global_assert},
+                    http_header => $entry->{http_header},
                     caller_pages => $caller_pages,
                     is_recursive => 1,
                 };

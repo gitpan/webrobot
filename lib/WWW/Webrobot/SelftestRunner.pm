@@ -4,7 +4,7 @@ package WWW::Webrobot::SelftestRunner;
 # Copyright(c) 2004 ABAS Software AG
 
 use Exporter;
-@EXPORT_OK = qw/ RunTestplan HttpdEcho Config /;
+@EXPORT_OK = qw/ RunTestplan RunTestplan2 HttpdEcho Config /;
 
 use strict;
 use warnings;
@@ -51,6 +51,11 @@ and the testplan C<$testplan>.
 =cut
 
 sub RunTestplan {
+    my ($exit, $webrobot) = RunTestplan2(@_);
+    return $exit;
+}
+
+sub RunTestplan2 {
     my ($server_func, $config, $test_plan) = @_;
 
     my $daemon = WWW::Webrobot::StupidHTTPD -> new();
@@ -62,7 +67,7 @@ sub RunTestplan {
 
     $daemon -> stop();
 
-    return $exit;
+    return ($exit, $webrobot);
 }
 
 
@@ -86,7 +91,19 @@ my $simple_html_text_1 = <<'EOF';
 </html>
 EOF
 
+my $frame_0 = <<'EOF';
+<html>
+  <frameset cols='250,1*'>
+    <frame name="menu" src="/constant_html_0">
+    <frame name="Inhalt" src="/constant_html_1">
+    <noframes>Your browser does not support frames.</noframes>
+  </frameset>
+</html>
+EOF
+
 my $ACTION = {
+    # NOTE: depending on the key the HTTP response will be
+    # text/html or text/plain
     url => sub {
         my ($connection, $request) = @_;
         $request -> uri();
@@ -110,6 +127,10 @@ my $ACTION = {
     constant_html_1 => sub {
         my ($connection, $request) = @_;
         return $simple_html_text_1;
+    },
+    html_frame_0 => sub {
+        my ($connection, $request) = @_;
+        return $frame_0;
     },
     html_as_utf8 => sub {
         my ($connection, $request) = @_;

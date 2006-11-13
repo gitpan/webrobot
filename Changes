@@ -1,3 +1,9 @@
+0.81 2006-11-13
+        - Bug on <recurse> fixed and new tests. This feature had been lost in
+          one of the previous versions.
+        - webrobot (command line): --cfg is now optional.
+          It uses standard test output if missing
+
 0.80 2006-03-27
         NOTE: (*) may brake old behaviour
 

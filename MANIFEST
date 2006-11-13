@@ -63,7 +63,6 @@ lib/WWW/Webrobot/XML2Tree.pm
 LICENSE
 Makefile.PL
 MANIFEST			This list of files
-META.yml
 README
 t/assert.t
 t/check_modules.t
@@ -90,6 +89,7 @@ t/encode/plan-chinese.xml
 t/encode/plan-umlaut.xml
 t/ext-http-response.t
 t/html-treebuilder.t
+t/lib/Tmp/Count.pm
 t/makeplan.t
 t/plan-assert-file.t
 t/plan-assert-file/constant_html_1.txt
@@ -107,6 +107,8 @@ t/plan-post.t
 t/plan-properties-basic.t
 t/plan-properties-simple.t
 t/plan-properties.t
+t/plan-recurse.t
+t/plan-recurse2.t
 t/plan-request-header.t
 t/plan-sleep.t
 t/plan/shuffle.xml
@@ -120,9 +122,11 @@ t/var_expand/testplan.xml
 t/var_expand/testplan0.xml
 t/var_expand/testplan1.xml
 t/var_expand/testplan2.xml
+t/x
 t/xhtml.t
 t/xhtml/chinese.html
 t/xhtml/isolatin-doctype.html
 t/xhtml/isolatin-simple.html
 t/xhtml/isolatin.html
 t/xml_print.t
+META.yml                                 Module meta-data (added by MakeMaker)
